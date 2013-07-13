@@ -10,17 +10,17 @@ Default Options:
 ```bash
 <script>
 	$(document).ready(function () {
-		$('textarea.restrict').stopVerbosity({
-			limit: 300,
-      indicatorPosition: 'after',
-      indicatorId: 'countdown-indicator',
-      indicatorElementType: 'p',
-      indicatorPhrase: ['Used', '[countup]', 'of', '[limit]', 'characters.',
-        '[countdown]', 'characters remaining.'
-      ],
-      customIndicator: '',
-      generateIndicator: true 
-		});
+	  $('textarea.restrict').stopVerbosity({
+	    limit: 300,
+	    indicatorPosition: 'after',
+	    indicatorId: 'countdown-indicator',
+	    indicatorElementType: 'p',
+	    indicatorPhrase: ['Used', '[countup]', 'of', '[limit]', 'characters.',
+	      '[countdown]', 'characters remaining.'
+	    ],
+	    customIndicator: '',
+	    generateIndicator: true
+	  });
 	})
 </script>
 ```
@@ -31,7 +31,9 @@ Usage/Options Details:
     The number of characters that are allowed in the textarea
 
 ###indicatorPosition (string)
-    Could be 'before' or 'after'. 'before' inserts the indicator before the textarea, while 'after' inserts the indicator after the textarea.
+    Could be 'before' or 'after'. 
+    'before' inserts the indicator before the textarea.
+    'after' inserts the indicator after the textarea.
 
 ###indicatorElementType (string)
     Should be either a 'p' or 'span' tag since the indicator is text.
