@@ -28,7 +28,7 @@ Default Options:
 Usage/Options Details:
 -------------
 ###limit (number)
-    The number of characters that are allowed in the textarea
+    The number of characters that are allowed in the textarea.
 
 ###indicatorPosition (string)
     Could be 'before' or 'after'. 
