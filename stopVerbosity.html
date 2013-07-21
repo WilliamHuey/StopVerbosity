@@ -4,13 +4,8 @@
 <head>
   <title>Stop Verbosity</title>
   <meta charset="UTF-8">
-  <!--[if lt IE 9]>
-    <script src="jquery-1.10.2.min.js"></script>
-  <![endif]-->
-  <!--[if gte IE 9]><!-->
-    <script src="jquery-2.0.3.min.js"></script>
-  <!--<![endif]-->
-  <script src="stopVerbosity.js"></script>
+  <script src="jquery-1.10.2.min.js"></script>
+  <script src="stopVerbosity.js" language="javascript"></script>
 </head>
 
 <body>
@@ -18,7 +13,7 @@
     $(document).ready(function () {
       $('textarea.restrict').stopVerbosity({
         limit: 5,
-        indicatorId: "my-indicator-id"
+        indicatorId: "my-indicator"
       });
     });
   </script>
