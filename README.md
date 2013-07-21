@@ -54,7 +54,7 @@ Usage/Options Details:
     By default, the indicator will be set to true for auto generation. 
 	
 ###showIndicator (boolean)	
-   The indicator will be shown, unless this is set to false.
+    The indicator will be shown, unless this is set to false.
    
 ChangeLog:
 ------
@@ -63,7 +63,7 @@ Use native maxlength when supported.
 Ability to show or hide indicator.
 Drag and drop restriction.
 
-ToDo:
+ToDo(s):
 ------
 Older Ie - problem with delay response on event handlers.
 (Could be problem with nested prototypes)
