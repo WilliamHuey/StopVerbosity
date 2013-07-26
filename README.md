@@ -3,7 +3,7 @@ Stop Verbosity - MaxLength for Textarea
 
 Description: 
 -------------
-Limit the amount of text that is permitted in a textarea by replicating the maxlength. A line of text counts characters used or remaining when text is entered into the textarea. Once the limit is reached, there is no more text input from typing, pasting or drag and drop. [Online Demo](http://jsbin.com/iticir/2/edit)
+Limit the amount of text that is permitted in a textarea by replicating the maxlength. A line of text counts characters used or remaining when text is entered into the textarea. Once the limit is reached, there is no more text input from typing, pasting or drag and drop. [Online Demo](http://jsbin.com/iticir/3/edit)
 
 Default Options:
 -------------
@@ -54,25 +54,35 @@ Usage/Options Details:
     By default, the indicator will be set to true for auto generation. 
 	
 ###showIndicator (boolean)	
-    The indicator will be shown, unless this is set to false.
+   The indicator will be shown, unless this is set to false.
    
 ChangeLog:
 ------
+v1.11
+Add full support for Ie6 and Ie8
+
 v1.10
 Use native maxlength when supported.
+
 Ability to show or hide indicator.
+
 Drag and drop restriction.
 
-ToDo(s):
+ToDo:
 ------
-Older Ie - problem with delay response on event handlers.
-(Could be problem with nested prototypes)
+Add Ie9 support for proper detection of deletion of text.
+
 Indicator phrase with multiple repeated variables (multiple indexOf).
+
 Slow indicator down on update.
 
 Notes:
 ------
-Tested on Opera >= 12, Ie10, Ie8, Firefox 22, Chrome 28 with jQuery 1.10.2.
+Tested on Opera >= 12.10, Ie10, Ie8, Ie6, Firefox 22, Chrome 28 with jQuery 1.10.2. Did not test with Ie7.
+
+This plugin will use the browser's native maxlength and will fallback to the plugin's implementation when lacking maxlength support.
+
+Since Ie9 has faulty support for maxlength, this plugin will monitor the textarea for exceeding the limit and impose the plugins's maxlength. However, this will also override Opera 12 maxlength implementation.
 
 To normalize behaviors of browsers, the textarea is cleared upon page refresh and tab key press is prevented when text is highlighted with the mouse. 
 
@@ -80,6 +90,6 @@ This plugin is mainly a theoretical exercise because most of the newer major bro
 
 Information of form support from [here](http://www.wufoo.com/html5/).
 
-This plugin is intended for use with Ie 6-9, but work still need to be done to properly complete the implementation. 
+This plugin is intended for use with Ie 6-9, but work still need to be done to properly complete the implementation for Ie9.
 
 Since browsers do not have an undo or redo event in textareas, this plugin will not support undos or redos in the textarea.

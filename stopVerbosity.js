@@ -3,19 +3,19 @@
  *  Description: Limits and counts the characters in a textarea.
  *  Author: William Huey
  *  License: MIT
- *  Version: 1.10
+ *  Version: 1.11
  *
  *  Credits:
  *  Tim Down (getInputSelection, setInputSelection)
  *    http://stackoverflow.com/questions/3549250/highlighting-a-piece-of-string-in-a-textarea
+ *  Ben Alpert(isInputSupported)
  *
  *  Todo:
- *  Older Ie - problem with delay response on event handlers
- *    Could be problem with nested prototypes
+ *  Add Ie9 support for proper detection of deletion of text.
  *  Indicator phrase with multiple repeated variables (multiple indexOf)
  *  Slow indicator down on update
  */
- 
+
 ;(function ($, window, document, undefined) {
   'use strict';
   //defaults options
@@ -33,6 +33,7 @@
       showIndicator: true
     };
   //initializing main Plugin with options
+
   function Plugin(element, options) {
     this.element = element;
     this.options = $.extend({}, defaults, options);
@@ -60,7 +61,6 @@
           //polyfill indexOf, for ie
           if (!Array.prototype.indexOf) {
             Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
-              "use strict";
               if (this == null) {
                 throw new TypeError();
               }
@@ -88,7 +88,7 @@
                 }
               }
               return -1;
-            }
+            };
           }
           //clear out the textarea upon refresh
           $el.val('');
@@ -130,6 +130,7 @@
           //get the this reference
           var _this = this;
           //search for variables, strVar, that are defined in the indicator phrase
+
           function isFound(key, strVar, indicatorPhrase, context) {
             var strVarIndex = indicatorPhrase.indexOf(strVar);
             //set info in datastore for events later
@@ -165,11 +166,11 @@
           if (generateIndicator) {
             //check if id is given
             var id;
-            if(indicatorId.length > 0) {
+            if (indicatorId.length > 0) {
               id = ' id=' + indicatorId;
             } else {
               id = '';
-            }          
+            }
             //insert the indicator
             var indicatorElement = [
               '<', indicatorElementType, id, '>',
@@ -273,8 +274,21 @@
                 }
               }
             };
+            //create a textarea element for detecting support of attributes
+            var textareaElement = document.createElement("textarea"),
+              checkFirstKeyDown;
+            //test for input or propertuchange support in textarea
+            if ("oninput" in textareaElement && (!("documentMode" in document) || document.documentMode > 9)) {
+              //do not check if input event is supported
+              checkFirstKeyDown = false;
+            } else if ("onpropertychange" in textareaElement) {
+              //only check if supports onpropertychange
+              checkFirstKeyDown = true;
+            }
+            //store check condition in datastore
+            ds.checkFirstKeyDown = checkFirstKeyDown;
             //attach the attribute maxlength if supported
-            if (!! ("maxLength" in document.createElement("textarea"))) {
+            if ( !! ("maxLength" in textareaElement)) {
               $el.attr("maxlength", limit);
             }
             //helper for setInputSelection
@@ -294,6 +308,8 @@
           inputFunction: function (input) {
             var ds = ep.dataStore;
             $el.on('input propertychange', function () {
+              //checkFirstKeyDown for Ie8
+              ds.checkFirstKeyDown = false;
               if (ep.dataStore.dropOccurred) {
                 ep.dataStore.dropOccurred = false;
                 return;
@@ -483,6 +499,28 @@
             });
           },
           keydownFunction: function () {
+            var ds = ep.dataStore;
+            //to correct for Ie8
+            //for not triggering on change
+            this.keydownFunction.checkFirstKeyDown =
+              function (caller) {
+                //checks the first keydown
+                if (ds.checkFirstKeyDown) {
+                  if (ds.continueKeyCheck) {
+                    setTimeout(function () {
+                      if (ep.getTextAreaLength($el) > 0) {
+                        $el.trigger('propertychange');
+                      }
+                    });
+                  }
+                }
+                //when using backspace to delete
+                if (caller === 'keyprevent') {
+                  setTimeout(function () {
+                    $el.trigger('propertychange');
+                  });
+                }
+            };
             this.keydownFunction.checkTab = function (evt) {
               if (evt.which === 9) {
                 //if the mouse is down while tab was pressed
@@ -500,6 +538,8 @@
                 //preserve some keys after textarea is full: f-keys, arrows, backspace etc.
                 if (/^(0|8|9|16|17|18|19|20|27|33|34|35|36|37|38|38|40|45|46|112|113|114|115|116|117|118|119|120|121|122|123)$/.test(evt.which)) {
                   ep.keydownFunction.checkTab(evt);
+                  ep.keydownFunction.checkFirstKeyDown('keyprevent');
+                  ds.falsePositive = true;
                 } else if (evt.ctrlKey === false) {
                   //on single key presses
                   //only permit the single key if ctrl was pressed too
@@ -512,6 +552,7 @@
             };
             $el.on('keydown', function (evt) {
               ep.keydownFunction.checkTab(evt);
+              ep.keydownFunction.checkFirstKeyDown();
               setTimeout(function () {
                 ep.trackSelectionFunction($el, ep);
               });
@@ -534,7 +575,9 @@
             //only to track the keydown
             eventPresent: ['keydown'],
             eventPrevent: [],
-            falsePositive: false
+            falsePositive: false,
+            checkFirstKeyDown: false,
+            continueKeyCheck: true
           },
           removeDataStore: function (key, value) {
             //only remove in arrays
