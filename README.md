@@ -59,21 +59,19 @@ Usage/Options Details:
 ChangeLog:
 ------
 v1.11
-Add full support for Ie6 and Ie8
+
+Add full support for Ie6 and Ie8.
 
 v1.10
+
 Use native maxlength when supported.
-
 Ability to show or hide indicator.
-
 Drag and drop restriction.
 
 ToDo:
 ------
 Add Ie9 support for proper detection of deletion of text.
-
 Indicator phrase with multiple repeated variables (multiple indexOf).
-
 Slow indicator down on update.
 
 Notes:
