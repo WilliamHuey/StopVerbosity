@@ -70,9 +70,9 @@ Drag and drop restriction.
 
 ToDo:
 ------
-Add Ie9 support for proper detection of deletion of text.
-Indicator phrase with multiple repeated variables (multiple indexOf).
-Slow indicator down on update.
+* Add Ie9 support for proper detection of deletion of text.
+* Indicator phrase with multiple repeated variables (multiple indexOf).
+* Slow indicator down on update.
 
 Notes:
 ------
