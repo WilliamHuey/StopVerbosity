@@ -54,7 +54,7 @@ Usage/Options Details:
     By default, the indicator will be set to true for auto generation. 
 	
 ###showIndicator (boolean)	
-   The indicator will be shown, unless this is set to false.
+    The indicator will be shown, unless this is set to false.
    
 ChangeLog:
 ------
