@@ -22,7 +22,8 @@ Default Options:
       ],
       existingIndicator: '',
       generateIndicator: true,
-      showIndicator: true
+      showIndicator: true,
+      useNativeMaxlength: true
 	  });
 	})
 </script>
@@ -63,7 +64,7 @@ Usage/Options Details:
 
 Notes:
 ------
-Tested on Opera >= 12.10, Ie>6 but 7, Firefox 22, Chrome 28 with jQuery 1.10.2. 
+Tested on Opera >= 12.10, Ie>=6 but 7, Firefox 22, Chrome 28 with jQuery 1.10.2. 
 
 Attention has been made to the plugin to implement a maxlength that replicates the default maxlength behavior in a textarea. Text overflow is not allowed and text truncation is calculated. Simple substring operations are not done. The maxlength follows the maxlength that are in present in recent versions of Firefox, Ie, and Chrome.
 
