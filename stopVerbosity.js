@@ -3,7 +3,7 @@
  *  Description: Limits and counts the characters in a textarea.
  *  Author: William Huey
  *  License: MIT
- *  Version: 1.12.1
+ *  Version: 1.12.2
  *
  *  Credits:
  *  Tim Down (getInputSelection, setInputSelection)

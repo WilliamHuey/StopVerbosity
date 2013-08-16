@@ -82,6 +82,9 @@ Since browsers do not have an undo or redo event in textareas, this plugin will 
 
 ChangeLog:
 ------
+v1.12.2
+* Attempt fix url
+
 v1.12.1
 
 * Fix readme
