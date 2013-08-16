@@ -1,0 +1,33 @@
+{
+    "name": "stopVerbosity",
+    "title": "Stop Verbosity",
+    "description": "Limit the amount of text that is permitted in a textarea.",
+    "keywords": [
+        "maxlength",
+        "limit",
+        "maximum",
+        "restrict",
+        "textarea",
+        "characters",
+        "textarea",
+        "counter"
+    ],
+    "version": "1.12.0",
+    "author": {
+        "name": "William Huey",
+        "email": "wklhuey@gmail.com",
+        "url": "williamhuey.github.io"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/WilliamHuey/StopVerbosity/blob/master/MIT-LICENSE.txt"
+        }
+    ],
+    "bugs": "",
+    "homepage": "https://github.com/WilliamHuey/StopVerbosity",
+    "docs": "https://github.com/WilliamHuey/StopVerbosity",
+    "dependencies": {
+        "jquery": ">=1.7"
+    }
+}

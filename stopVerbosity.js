@@ -1,24 +1,27 @@
 /*
- *  Project: Restrict Textarea
+ *  Project: Stop Verbosity
  *  Description: Limits and counts the characters in a textarea.
  *  Author: William Huey
  *  License: MIT
- *  Version: 1.11
+ *  Version: 1.12.0
  *
  *  Credits:
  *  Tim Down (getInputSelection, setInputSelection)
  *    http://stackoverflow.com/questions/3549250/highlighting-a-piece-of-string-in-a-textarea
  *  Ben Alpert(isInputSupported)
+ *    http://benalpert.com/2013/06/18/a-near-perfect-oninput-shim-for-ie-8-and-9.html
  *
  *  Todo:
- *  Add Ie9 support for proper detection of deletion of text.
- *  Indicator phrase with multiple repeated variables (multiple indexOf)
+ *  Punctuation before and after string variables
  *  Slow indicator down on update
  */
-
+ 
 ;(function ($, window, document, undefined) {
   'use strict';
   //defaults options
+  //quick disabling of logging
+  //var console = {};
+  //console.log = function(){}; 
   var pluginName = "stopVerbosity",
     defaults = {
       limit: 300,
@@ -26,14 +29,16 @@
       indicatorId: 'countdown-indicator',
       indicatorElementType: 'p',
       indicatorPhrase: ['Used', '[countup]', 'of', '[limit]', 'characters.',
-        '[countdown]', 'characters remaining.'
+        '[countdown]', 'characters remaining.', 'The maximum is', '[limit]',
+        'characters.', '</br>', 'Permits multiple counts up:', '[countup]',
+        'and counts down:', '[countdown]', '.', 'This indicator is customizable.'
       ],
-      customIndicator: '',
+      existingIndicator: '',
       generateIndicator: true,
-      showIndicator: true
+      showIndicator: true,
+      useNativeMaxlength: true
     };
   //initializing main Plugin with options
-
   function Plugin(element, options) {
     this.element = element;
     this.options = $.extend({}, defaults, options);
@@ -60,7 +65,7 @@
         init: function ($el, options) {
           //polyfill indexOf, for ie
           if (!Array.prototype.indexOf) {
-            Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+            Array.prototype.indexOf = function (searchElement, fromIndex) {
               if (this == null) {
                 throw new TypeError();
               }
@@ -98,11 +103,14 @@
             indicatorId = options.indicatorId,
             indicatorElementType = options.indicatorElementType,
             indicatorPhrase = options.indicatorPhrase,
-            customIndicator = options.customIndicator,
+            existingIndicator = options.existingIndicator,
             generateIndicator = options.generateIndicator,
-            showIndicator = options.showIndicator;
+            showIndicator = options.showIndicator,
+            useNativeMaxlength = options.useNativeMaxlength;                             
           //quick reference for the plugin prototype
           var setupProto = Setup.prototype;
+          //store useNativeMaxlength status
+          setupProto.setupDataStore.useNativeMaxlength = useNativeMaxlength; 
           //check character limit value in textarea
           setupProto.checkLimitOption(limit);
           //check for clearing of text in textarea
@@ -110,7 +118,7 @@
           //insert the indicator (character counter) near textarea
           setupProto.setIndicator(limit, indicatorElementType,
             indicatorId, indicatorPosition, indicatorPhrase, $el,
-            customIndicator, generateIndicator, showIndicator);
+            existingIndicator, generateIndicator, showIndicator);
           //after initializing, return phrase info
           return setupProto.setupDataStore;
         },
@@ -122,39 +130,62 @@
         },
         setIndicator: function (limit, indicatorElementType,
           indicatorId, indicatorPosition, indicatorPhrase, $el,
-          customIndicator, generateIndicator, showIndicator) {
+          existingIndicator, generateIndicator, showIndicator) {
           //only use an indicator when set to true
           if (!showIndicator) {
             return;
           }
           //get the this reference
           var _this = this;
-          //search for variables, strVar, that are defined in the indicator phrase
 
           function isFound(key, strVar, indicatorPhrase, context) {
-            var strVarIndex = indicatorPhrase.indexOf(strVar);
-            //set info in datastore for events later
-            if (strVarIndex > -1) {
-              context.setupDataStore[key].push(strVarIndex);
+            var idx = indicatorPhrase.indexOf(strVar);
+            while (idx !== -1) {
+              context.setupDataStore[key].push(idx);
+              idx = indicatorPhrase.indexOf(strVar, idx + 1);
             }
           }
+          //search for variables, strVar, that are defined in the indicator phrase
           isFound('limit', '[limit]', indicatorPhrase, _this);
           isFound('countup', '[countup]', indicatorPhrase, _this);
           isFound('countdown', '[countdown]', indicatorPhrase, _this);
-          //set the value of the limit for phrase
-          indicatorPhrase[this.setupDataStore.limit] = limit;
-          indicatorPhrase[this.setupDataStore.countup] = 0;
-          indicatorPhrase[this.setupDataStore.countdown] = limit;
+
+          function updatePhrase(key, data, _this) {
+            var phraseArray = _this.setupDataStore[key],
+              phraseItems = phraseArray.length,
+              i = 0;
+            for (; i < phraseItems; i++) {
+              var pIndex = phraseArray[i];
+              //countup starts at zero
+              //while countdown and limit starts at the limit
+              switch (key) {
+              case 'countup':
+                data[pIndex] = 0;
+                break;
+              default:
+                data.phrase[pIndex] = data.limit;
+                break;
+              }
+            }
+          }
+          //set the right value for limit, countup, and countdown
+          var limitData = {
+            phrase: indicatorPhrase,
+            limit: limit
+          };
+          updatePhrase('limit', limitData, _this);
+          updatePhrase('countup', indicatorPhrase, _this);
+          updatePhrase('countdown', limitData, _this);
           //also get a copy of the original phrase array
           this.setupDataStore.indicatorPhrase = indicatorPhrase;
           //use an element that is already on the page
-          if (Object.prototype.toString.call(customIndicator) === "[object String]") {
+          if (Object.prototype.toString.call(existingIndicator) === "[object String]") {
             {
               try {
-                var $customIndicator = $(customIndicator);
-                if ($customIndicator.length) {
-                  this.setupDataStore.indicatorElement = $customIndicator;
-                  $customIndicator.html(indicatorPhrase.join(' '));
+                var $existingIndicator = $(existingIndicator);
+                if ($existingIndicator.length) {
+                  this.setupDataStore.indicatorElement = $existingIndicator;
+                  $existingIndicator.html(indicatorPhrase.join(' '));
                   generateIndicator = false;
                 }
               } catch (error) {
@@ -206,7 +237,6 @@
         ep = Events.prototype = {
           init: function (limit, setupActionData) {
             //reference the Events prototype
-            //var ep = Events.prototype;
             //add event listeners to the textarea
             ep.addListeners(limit, setupActionData);
           },
@@ -218,12 +248,13 @@
             ds.el = $el;
             ds.limit = limit;
             ds.indicator = setupActionData;
+            //for key prevention and allowance
             var input = {
               preventFunction: function () {
                 //see if keydown prevent is already used
-                var keyPrevent = ep.dataStore.eventPrevent.indexOf('keydown');
+                var keyPrevent = ds.eventPrevent.indexOf('keydown');
                 //if no keyprevent present
-                if (keyPrevent === -1) {
+                if (keyPrevent === -1 && !ds.isTextSelected) {
                   //track the prevented events and removed events
                   ep.setDataStore('eventPrevent', 'keydown');
                   ep.removeDataStore('eventPresent', 'keydown');
@@ -237,21 +268,21 @@
               },
               allowFunction: function () {
                 //see if keydown prevent is already used
-                var keyPrevent = ep.dataStore.eventPrevent.indexOf('keydown');
+                var keyPrevent = ds.eventPrevent.indexOf('keydown');
                 if (keyPrevent > -1) {
                   //track the prevented events and removed events
                   ep.removeDataStore('eventPrevent', 'keydown');
                   ep.setDataStore('eventPresent', 'keydown');
                   //remove the event prevent on keydown
                   //and prevent paste function
-                  $el.off('keydown')
-                    .off('paste');
+                  $el.off('keydown');
+                  $el.off('paste');
                   //restore the original keydown
                   ep.keydownFunction($el, ep);
                 }
               },
               changeText: function (countType) {
-                var indicator = ep.dataStore.indicator,
+                var indicator = ds.indicator,
                   countDirection = indicator[countType];
                 if (typeof countDirection !== 'undefined') {
                   if (countDirection.length) {
@@ -263,13 +294,17 @@
                       textAmount = ep.getTextAreaLength($el);
                     }
                     //get the index of the countType
-                    var prevCountdown = indicator[countType][0];
-                    //update items in the phrase
-                    indicator.indicatorPhrase[prevCountdown] = textAmount;
-                    //new phrase for inserting into the indicator
-                    var updatedPhrase = indicator.indicatorPhrase;
-                    //overwrite the older text in indicator
-                    indicator.indicatorElement.html(updatedPhrase.join(" "));
+                    var strIndice = indicator[countType],
+                      strIndexLen = strIndice.length,
+                      i = 0;
+                    for (; i < strIndexLen; i++) {
+                      //update items in the phrase
+                      indicator.indicatorPhrase[strIndice[i]] = textAmount;
+                      //new phrase for inserting into the indicator
+                      var updatedPhrase = indicator.indicatorPhrase;
+                      //overwrite the older text in indicator
+                      indicator.indicatorElement.html(updatedPhrase.join(" "));
+                    }
                   }
                 }
               }
@@ -277,19 +312,29 @@
             //create a textarea element for detecting support of attributes
             var textareaElement = document.createElement("textarea"),
               checkFirstKeyDown;
-            //test for input or propertuchange support in textarea
-            if ("oninput" in textareaElement && (!("documentMode" in document) || document.documentMode > 9)) {
-              //do not check if input event is supported
-              checkFirstKeyDown = false;
+            //test for input or propertychange support in textarea            
+            if ("oninput" in textareaElement) {
+              //partial support but still need to check for full support
+              ds.partialInputSupport = true;
+              if (!("documentMode" in document) || document.documentMode > 9) {
+                //full input support
+                checkFirstKeyDown = false;
+                ds.supportsInput = true;
+                ds.partialInputSupport = false;
+              }
             } else if ("onpropertychange" in textareaElement) {
               //only check if supports onpropertychange
               checkFirstKeyDown = true;
+              ds.supportsInput = false;
             }
             //store check condition in datastore
             ds.checkFirstKeyDown = checkFirstKeyDown;
             //attach the attribute maxlength if supported
             if ( !! ("maxLength" in textareaElement)) {
-              $el.attr("maxlength", limit);
+              //check for use of native or not
+              if(setupActionData.useNativeMaxlength) {
+                $el.attr("maxlength", limit);
+              }  
             }
             //helper for setInputSelection
             ep.setInputSelection.offsetToRangeCharacterMove = function (el, offset) {
@@ -310,6 +355,7 @@
             $el.on('input propertychange', function () {
               //checkFirstKeyDown for Ie8
               ds.checkFirstKeyDown = false;
+              //to determine drop change
               if (ep.dataStore.dropOccurred) {
                 ep.dataStore.dropOccurred = false;
                 return;
@@ -319,6 +365,7 @@
                 //see if limit is reached in textarea
                 status = ep.checkLimit($el, limit);
               ep.setDataStore('textStatus', status);
+              //less than the limit
               if (status === 'less') {
                 //have not reach the limit yet
                 //check for eventprevent from reaching the limit
@@ -334,6 +381,7 @@
                   ep.trackSelectionFunction($el, ep);
                 });
               } else if (status === 'equal') {
+                //equal to the limit
                 if (ds.falsePositive) {
                   input.preventFunction();
                 }
@@ -355,6 +403,11 @@
                 //in case there is a false positive
                 //for maxlength support
                 ds.falsePositive = true;
+                //correction for Ie6-8
+                //to properly detect text selection prior to pasting 
+                if (ds.selectBeforeKeydown) {
+                  ds.caretStatus = ds.selectCaretStatus;
+                }
                 var newLength = ep.getTextAreaLength($el),
                   oldCaret = ds.caretStatus,
                   oldCaretStart = oldCaret.start,
@@ -368,7 +421,7 @@
                   middleFront,
                   middleBack;
                 //text was selected before
-                if (ep.dataStore.isTextSelected) {
+                if (ds.isTextSelected || ds.selectBeforeKeydown) {
                   frontEnd = oldCaret.end;
                   middleFront = oldCaret.end;
                   middleBack = charactersLeft + oldCaretEnd;
@@ -386,14 +439,25 @@
                   back = textString.slice(backFront, newLength),
                   revertString = front + middle + back,
                   newCaretPos = front.length + middle.length;
-                //track the new caret postion
-                ep.dataStore.newCaretPos = newCaretPos;
+                //track the new caret position
+                ds.newCaretPos = newCaretPos;
                 //revert back to text on reaching limit
-                $el.val(revertString);
-                //force a input event to allow text handling
-                $el.trigger('propertychange');
+                if (revertString.length <= limit) {
+                  $el.val(revertString);
+                  //force a input event to allow text handling
+                  $el.trigger('propertychange');
+                }
               }
             });
+            //have test for partialInputSupport for Ie9
+            if (ds.partialInputSupport) {
+              //for Ie9 where deleting text does not trigger input
+              $(document).on('selectionchange', function () {
+                if (ep.getTextAreaLength($el) < ds.lengthText) {
+                  $el.trigger('propertychange');
+                }
+              });
+            }
           },
           dropFunction: function () {
             //alias dataStore
@@ -447,9 +511,13 @@
             $el.on('deselect', function () {
               var limit = ep.dataStore.limit,
                 status = ep.checkLimit($el, limit);
+              ep.trackSelectionFunction($el, ep);
               if (status === 'equal') {
                 //if no keyprevent present
                 input.preventFunction();
+              } else if (status === 'greater') {
+                //for Ie8
+                $el.trigger('propertychange');
               }
             });
           },
@@ -460,10 +528,18 @@
               if (ep.dataStore.dropOccurred) {
                 return;
               }
+              //track the caret position
               ep.trackSelectionFunction($el, ep);
               var caretStatus = ep.dataStore.caretStatus,
                 limit = ep.dataStore.limit,
                 status = ep.checkLimit($el, limit);
+              //track caret status that is only for selection
+              var oldCaretStart = caretStatus.start,
+                oldCaretEnd = caretStatus.end,
+                selectCaretStatus = ep.dataStore.selectCaretStatus;
+              selectCaretStatus.start = oldCaretStart;
+              selectCaretStatus.end = oldCaretEnd;
+              //allow or prevent input when equal to limit
               if (status === 'equal') {
                 //check for Opera 12
                 if (caretStatus.end === caretStatus.start) {
@@ -536,7 +612,8 @@
             this.keydownFunction.keydownPrevent = function () {
               $el.on('keydown', function (evt) {
                 //preserve some keys after textarea is full: f-keys, arrows, backspace etc.
-                if (/^(0|8|9|16|17|18|19|20|27|33|34|35|36|37|38|38|40|45|46|112|113|114|115|116|117|118|119|120|121|122|123)$/.test(evt.which)) {
+                //code to keys chart http://pastebin.com/z5LH4x9f
+                if (/^(0|8|9|16|17|18|19|20|27|33|34|35|36|37|38|38|39|40|45|46|112|113|114|115|116|117|118|119|120|121|122|123)$/.test(evt.which)) {
                   ep.keydownFunction.checkTab(evt);
                   ep.keydownFunction.checkFirstKeyDown('keyprevent');
                   ds.falsePositive = true;
@@ -547,20 +624,38 @@
                 }
                 setTimeout(function () {
                   ep.trackSelectionFunction($el, ep);
+                  if (ep.dataStore.isTextSelected) {
+                    ep.dataStore.selectBeforeKeydown = true;
+                  } else {
+                    ep.dataStore.selectBeforeKeydown = false;
+                  }
                 });
               });
             };
+            //remove the keydown listener to prevent
+            //multiple keydown listener from being attached
+            $el.off('keydown');
             $el.on('keydown', function (evt) {
               ep.keydownFunction.checkTab(evt);
               ep.keydownFunction.checkFirstKeyDown();
               setTimeout(function () {
                 ep.trackSelectionFunction($el, ep);
+                //for Ie6-8
+                if (ep.dataStore.isTextSelected) {
+                  ep.dataStore.selectBeforeKeydown = true;
+                } else {
+                  ep.dataStore.selectBeforeKeydown = false;
+                }
               });
             });
           },
           dataStore: {
             newCaretPos: null,
             caretStatus: {
+              start: 0,
+              end: 0
+            },
+            selectCaretStatus: {
               start: 0,
               end: 0
             },
@@ -577,7 +672,9 @@
             eventPrevent: [],
             falsePositive: false,
             checkFirstKeyDown: false,
-            continueKeyCheck: true
+            continueKeyCheck: true,
+            selectBeforeKeydown: false,
+            supportsInput: null
           },
           removeDataStore: function (key, value) {
             //only remove in arrays
