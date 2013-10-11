@@ -5,7 +5,7 @@ Description:
 -------------
 Stop Verbosity is a jQuery plugin that limit the amount of text that is permitted in a textarea element by replicating the maxlength attribute for the textarea. A line of text, the indicator/counter, counts characters used or remaining when text is entered into the textarea. Once the limit is reached, there is no more text input from typing, pasting or drag and drop.
 
-[Online Demo](http://jsbin.com/iticir/6/edit)
+[Online Demo](http://williamhuey.github.io/code/stopverbosity)
 
 Default Options:
 -------------
@@ -114,6 +114,8 @@ Since browsers do not have an undo or redo event in textareas, this plugin will 
 
 ChangeLog:
 ------
+v1.13.1
+* Fix: Readme demo link update
 
 v1.13.0
 * Add: Punctuation support for the string variables
