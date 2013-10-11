@@ -1,0 +1,659 @@
+<!DOCTYPE HTML>
+
+<!--[if lt IE 9]>    <html class="lt-ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html> <!--<![endif]-->
+
+<head>
+  <title>Stop Verbosity</title>
+  <meta charset="UTF-8">
+  <link href="libs/css/normalize.css" rel="stylesheet" />
+  <link href="libs/css/foundation.min.css" rel="stylesheet" />
+  <link href="assets/css/main.css" rel="stylesheet" />
+  <!--[if lt IE 9]>
+    <link href="libs/css/ie8-grid-foundation-4.css" rel="stylesheet" />
+  <![endif]-->
+  <script src="libs/js/jquery-1.10.2.min.js"></script>
+  <script src="src/stopVerbosity.js"></script>
+  <script>
+    
+  $(document).ready(function () {
+
+    //Hide warning message if javascript is enabled
+    $('#warn-msg-no-js-enabled').hide();
+    
+    //The default have countdown and countup counters inside the indicator
+    //Has the same settings as the default options
+    $('#default').stopVerbosity({});
+    //Customize the indicator phrase
+    $('#customize-the-phrase').stopVerbosity({
+      indicatorPhrase: ['This is a custom indicator phrase.',
+        'This one only counts down. Only', '[countdown]', 'characters',
+        'left.'
+      ]
+    });
+    
+    //Switch to using the plugin's maxlength implementation
+    //The plugin will automatically use this mode if maxlength is not supported
+    //Should only set this to false for testing purposes
+    $('#use-plugin-maxlength').stopVerbosity({
+      useNativeMaxlength: false,
+      limit: 6,
+      indicatorPhrase: ["This textarea is using the plugin's implementation of maxlength.",
+        '<br> The plugin will automatically use this mode',
+        'if maxlength is not supported. <br> Should only set this to false ',
+        'for testing purposes. Only', '[countdown]', 'characters', 'left.'
+      ]
+    });
+    //Change how many characters may be enter into the textarea
+    $('#adjust-limit-value').stopVerbosity({
+      limit: 5,
+      indicatorPhrase: ['The amount of characters is now limited to 5. Only',
+        '[countdown]', 'characters', 'left.'
+      ]
+    });
+    //Change the position of indicator to appear before the textarea
+    $('#indicator-before-textarea').stopVerbosity({
+      limit: 6,
+      indicatorPosition: 'before',
+      indicatorPhrase: ['Indicator now goes before the texarea.',
+        'Only', '[countdown]', 'characters', 'left.'
+      ]
+    });
+    //The indicator can have a custom id
+    $('#custom-id-for-indicator').stopVerbosity({
+      limit: 7,
+      indicatorId: 'this-is-a-custom-id-for-the-indicator',
+      indicatorPhrase: ['Choose a custom id for your indicator. <br>',
+        'The id of the indicator is  "custom-id-for-indicator". <br> Only',
+        '[countdown]', 'characters', 'left.'
+      ]
+    });
+    //Modify the element type of the indicator
+    $('#change-indicator-element-type').stopVerbosity({
+      limit: 8,
+      indicatorId: 'span-element',
+      indicatorElementType: 'span',
+      indicatorPhrase: ['The element type of the indicator is now',
+        'a "span". <br> Used', '[countup]', 'characters of', '[limit]',
+        'characters limit.'
+      ]
+    });
+    //The update speed of the indicator could be changed
+    $('#change-update-speed').stopVerbosity({
+      limit: 9,
+      indicatorUpdateSpeed: 90,
+      indicatorPhrase: ['Make your indicator update slower by specifying',
+        'a number in milliseconds. <br> This one has a delay of 90 milliseconds.',
+        '[countup]', 'characters of', '[limit]', 'characters limit.'
+      ]
+    });
+    //Use an element on the page for the indicator
+    $('#existing-indicator').stopVerbosity({
+      limit: 10,
+      existingIndicator: $('#an-existing-indicator'),
+      indicatorPhrase: ['If you already have an indicator element on the page,',
+        'use it instead.<br>', '[countup]', 'characters of', '[limit]', 'characters limit.'
+      ]
+    });
+    //Choose not to show the indicator at all 
+    //as to use only the maxlength attribute on the textarea      
+    $('#no-indicator').stopVerbosity({
+      limit: 5,
+      showIndicator: false
+    });
+    
+    //Triggers a text length change event
+    //Made sure to set textLengthChange to true
+    $('#text-length-change').stopVerbosity({
+      textLengthChange: true,
+      indicatorPhrase: ['When the text length changes, the "sv-textLengthChange"',
+        'event will occur.<br>', 'Have now used', '[countup]', 'characters of', '[limit].'
+      ]
+    }).on('sv-textLengthChange', function (evt, infoObj) {
+      console.log('There is a text length change for the textarea.');
+      console.log('Textarea information:', infoObj);
+      //Or do something else here that is
+      //based on the length of currentTextLength
+      //Could be useful for attaching classes onto 
+      //the textarea or indicator for styling
+    });
+    //No maxlength
+    //Could be a time to use in conjunction with
+    //the sv-textLengthChange event
+    $('#no-maxlength').stopVerbosity({
+      limit: 1,
+      useMaxlength: false,
+      indicatorPhrase: ['Disable maxlength for no constrain on the amount of text',
+        'input. <br> Use this option to allow for overflow or to only use the indicator. ',
+        '<br> Used', '[countup]', 'characters so far. Counting down characters:',
+        '[countdown].', 'The limit is', '[limit]', 'character.'
+      ],
+      textLengthChange: true
+    }).on('sv-textLengthChange', function (evt, infoObj) {
+      console.log('There is a text length change for the textarea.');
+      console.log('Textarea information:', infoObj);
+      //If infoObj.exceededLimit is true, (limit has been exceeded) can now do something about it
+    });
+   
+    //Before attaching plugin, do something callback
+    $('#before-attachment').stopVerbosity({
+      indicatorPhrase: ['Stuff to run before the plugin fully initializes and attaches events.',
+        '[countdown]', 'characters used', 'of', '[limit].'
+      ],
+      beforeAttachment: function () {
+        console.log('Before attaching, do something.');
+      }
+    });
+    //After attaching plugin, do something callback
+    $('#after-attachment').stopVerbosity({
+      indicatorPhrase: ['Run a function when the plugin finishes initializing and attaching events.',
+        'Used', '[countup]', 'characters so far', 'The limit is', '[limit]', 'character.'
+      ],
+      afterAttachment: function (infoObj) {
+        //Reference the infoObj after finishing attachment
+        console.log('Info object is ', infoObj);
+        console.log('Finished attaching, do something.');
+      }
+    });
+    
+  });
+  
+  </script>
+</head>
+
+<body>
+  <div class="large-12 columns" id="warn-msg-no-js-enabled">
+    <div class="row">
+      <p>Warning, javascript is not enabled in your browser. Please enable javascript or else the examples will not work.</p>
+    </div>
+  </div>
+
+  
+    <div class="large-12 columns" id="main-sw">
+      <div class="large-3 columns" id="left-panel">
+        <div class="row" id="left-panel-row">
+          <img alt="stop-verbosity-logo" src="assets/img/StopVerbosity.png"/>
+          <h1 id="stop-verbosity-h1">Stop Verbosity</h1>
+          <ul>
+            <li> <a href="#r-description">Description</a> 
+            </li>
+            <li> <a href="#r-defaults">Default Options</a> 
+            </li>
+            <li> <a href="#examples-h">Examples</a> 
+            </li>
+            <li>
+              <ul id="examples-ul">
+                <li> <a href="#r-default">Default Configuration</a> 
+                </li>
+                <li> <a href="#r-customize-the-phrase">Customize Phrase</a> 
+                </li>
+                <li> <a href="#r-use-plugin-maxlength">Plugin's Maxlength</a> 
+                </li>
+                <li> <a href="#r-adjust-limit-value">Character Limit</a> 
+                </li>
+                <li> <a href="#r-indicator-before-textarea">Indicator Position</a> 
+                </li>
+                <li> <a href="#r-custom-id-for-indicator">Custom Indicator Id</a> 
+                </li>
+                <li> <a href="#r-change-indicator-element-type">Indicator Element Type</a> 
+                </li>
+                <li> <a href="#r-change-update-speed">Update Speed</a> 
+                </li>
+                <li> <a href="#r-existing-indicator">Existing Indicator</a> 
+                </li>
+                <li> <a href="#r-no-indicator">No Indicator</a> 
+                </li>
+                <li> <a href="#r-text-length-change">Change Event</a> 
+                </li>
+                <li> <a href="#r-no-maxlength">No Maxlength</a> 
+                </li>
+                <li><a href="#r-before-attachment">Before Attachment</a>
+                </li>
+                <li><a href="#r-after-attachment">After Attachment</a>
+                </li>
+              </ul>
+            </li>
+            <li> <a href="#r-notes">Notes</a> 
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="large-9 columns" id="right-panel">
+        <div class="row">
+          <ul class="large-6 columns large-offset-6" id="links-li">
+            <li class="large-6 columns top-li-1" id="tl-blog">
+              <ul class="top-ul-2">
+                <li class="img-li"> <a href="http://williamhuey.github.io/code/" id="blog-link" class="top-img-link">Blog</a>
+                </li>
+              </ul>
+            </li>
+            <li class="large-6 columns top-li-1" id="tl-download">
+              <ul class="top-ul-2">
+                <li class="img-li"> <a href="https://github.com/WilliamHuey/StopVerbosity" id="github-logo-link" class="top-img-link">Download</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div class="row">
+
+          <div class="large-11 large-centered columns">
+            <div class="row" id="r-description">
+              <h1>Description</h1>
+              <p>Stop Verbosity is a jQuery plugin that limits the amount of text that is permitted in a textarea element by
+                replicating the maxlength attribute for the textarea. A line of text, the indicator/counter, counts characters used
+                or remaining when text is entered into the textarea. Once the limit is reached, there is no more text input
+                from typing, pasting or drag and drop.</p>
+            </div>
+
+            <div class="row" id="r-defaults">
+              <h1>Default Options</h1>
+              <div class="row">
+              
+                <div class="large-12 large-centered columns" id="r-default-options">
+                  <div class="large-6 columns">
+<pre><span class="c-859900">$</span>('<span class="c-536871"><span class="c-a57800">textarea</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">10</span>,
+  indicatorPosition: <span class="c-269186"><span class="c-c60000">'</span>after<span class="c-c60000">'</span></span>,
+  indicatorId: <span class="c-269186"><span class="c-c60000">'</span><span class="c-c60000">'</span></span>,
+  indicatorElementType: <span class="c-269186"><span class="c-c60000">'</span>p<span class="c-c60000">'</span></span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Used<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countup]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>of<span class="c-c60000">'</span></span>, 
+    <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters.<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countdown]<span class="c-c60000">'</span></span>, 
+    <span class="c-269186"><span class="c-c60000">'</span>characters remaining.<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>The maximum is<span class="c-c60000">'</span></span>, 
+    <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters.<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>&lt;br&gt;<span class="c-c60000">'</span></span>, 
+    <span class="c-269186"><span class="c-c60000">'</span>Permits multiple counts up:<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countup]<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>and counts down:<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countdown].<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>This indicator is customizable.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>,
+  indicatorUpdateSpeed: <span class="c-269186">0</span>,
+  existingIndicator: <span class="c-269186"><span class="c-c60000">'</span><span class="c-c60000">'</span></span>,
+  generateIndicator: <span class="c-b58900">true</span>,
+  showIndicator: <span class="c-b58900">true</span>,
+  useNativeMaxlength: <span class="c-b58900">true</span>,
+  textLengthChange: <span class="c-b58900">false</span>,
+  useMaxlength: <span class="c-b58900">true</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre>
+                  </div>
+                  
+                  <div class="large-6 columns" id="options-explanations">
+                  
+                    <div class="row">
+                      <h3>limit (integer)</h3>
+                      
+                      <p>The number of characters that are allowed in the textarea.</p>
+                      <h3>indicatorPosition (string)</h3>
+                      <p>Could be 'before' or 'after'. 'before' inserts the indicator before the textarea. 'after' inserts the
+                        indicator after the textarea.</p>
+                      <h3>indicatorId (string)</h3>
+                      <p>Optional id if you wish to quickly refer to the indicator for styling.</p>
+                      <h3>indicatorElementType (string)</h3>
+                      <p>Should be either a 'p' or 'span' tag since the indicator is text.</p>
+                      <h3>indicatorPhrase (array of strings)</h3>
+                      <p>Specify your custom text with quotes for an item in the array. '[countup]', '[countdown]', and '[limit]'
+                        are the only reserved variable strings. This means these string variable will change on textarea
+                        input.</p>
+                      <h3>indicatorUpdateSpeed (number)</h3>
+                      <p>The delay placed on the indicator before update. This is a number that is represented in milliseconds.</p>
+                      <h3>existingIndicator (object)</h3>
+                      <p>Supply an indicator element that is already on the page. Has to be a jQuery object ex. $('#my-textarea-indicator')</p>
+                      <h3>generateIndicator (boolean)</h3>
+                      <p>By default, the indicator will be set to true for auto generation.</p>
+                      <h3>showIndicator (boolean)</h3>
+                      <p>The indicator will be shown, unless this is set to false.</p>
+                      <h3>useNativeMaxlength (boolean)</h3>
+                      <p>Uses the browser's maxlength if supported when set to true. However, setting this to false will use
+                        the plugin's implementation of maxlength. Should only set to false for testing purposes.</p>
+                      <h3>textLengthChange (boolean)</h3>
+                      <p>Triggers an event when set to true. Allows for a callback when there is a change in the text length
+                        of the textarea. This is useful for doing something that this plugin does not provide.</p>
+                      <h3>useMaxlength (boolean)</h3>
+                      <p>When set to false, maxlength is not implemented on the textarea. If the indicator is still present,
+                        the plugin will act as character counter. Set 'useMaxlength' to false to allow for overflow.</p>
+                      <h3>beforeAttachment (function)</h3>
+                      <p>Accepts and runs the function that is provided before the plugin initializes (attaching events).</p>
+                      <h3>afterAttachment (function)</h3>
+                      <p>Similar to beforeAttachment but runs the function after plugin initializes.</p>
+                      
+                    </div>
+
+                  </div>
+                   
+                </div>
+               
+              </div>
+              
+              
+            </div>
+            
+            
+            <div class="row" id="examples-h">
+              <h1>Examples</h1>
+            </div>
+            <div class="row">
+              <div class="large-12 large-centered columns" id="r-center-examples">
+                <div class="row" id="r-default">
+                  <div class="large-12 columns">
+                    <h2>Default Configuration</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="default"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//The default have countdown and countup counters inside the indicator</span>
+<span class="c-93a1a1">//Has the same settings as the default options</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#default</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span><span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-customize-the-phrase">
+                  <div class="large-12 columns">
+                    <h2>Customize Phrase</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="customize-the-phrase"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Customize the indicator phrase</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#customize-the-phrase</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>This is a custom indicator phrase.<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>This one only counts down. Only<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countdown]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>left.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-use-plugin-maxlength">
+                  <div class="large-12 columns">
+                    <h2>Plugin's Maxlength</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="use-plugin-maxlength"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Switch to using the plugin's maxlength implementation</span>
+<span class="c-93a1a1">//The plugin will automatically use this mode if maxlength is not supported</span>
+<span class="c-93a1a1">//Should only set this to false for testing purposes</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#use-plugin-maxlength</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  useNativeMaxlength: <span class="c-b58900">false</span>,
+  limit: <span class="c-269186">6</span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">"</span>This textarea is using the plugin's implementation of maxlength.<span class="c-c60000">"</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>&lt;br> The plugin will automatically use this mode<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>if maxlength is not supported. &lt;br> Should only set this to false <span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>for testing purposes. Only<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countdown]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>left.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-adjust-limit-value">
+                  <div class="large-12 columns">
+                    <h2>Character Limit</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="adjust-limit-value"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Change how many characters may be enter into the textarea</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#adjust-limit-value</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">5</span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>The amount of characters is now limited to 5. Only<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>[countdown]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>left.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-indicator-before-textarea">
+                  <div class="large-12 columns">
+                    <h2>Indicator Position</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="indicator-before-textarea"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Change the position of indicator to appear before the textarea</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#indicator-before-textarea</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">6</span>,
+  indicatorPosition: <span class="c-269186"><span class="c-c60000">'</span>before<span class="c-c60000">'</span></span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Indicator now goes before the texarea.<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>Only<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countdown]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>left.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre>
+                  </div>
+                </div>
+                <div class="row" id="r-custom-id-for-indicator">
+                  <div class="large-12 columns">
+                    <h2>Custom Indicator Id</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="custom-id-for-indicator"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//The indicator can have a custom id</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#custom-id-for-indicator</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">7</span>,
+  indicatorId: <span class="c-269186"><span class="c-c60000">'</span>this-is-a-custom-id-for-the-indicator<span class="c-c60000">'</span></span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Choose a custom id for your indicator. &lt;br><span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>The id of the indicator is  "custom-id-for-indicator". &lt;br> Only<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>[countdown]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>left.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-change-indicator-element-type">
+                  <div class="large-12 columns">
+                    <h2>Indicator Element Type</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="change-indicator-element-type"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Modify the element type of the indicator</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#change-indicator-element-type</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">8</span>,
+  indicatorId: <span class="c-269186"><span class="c-c60000">'</span>span-element<span class="c-c60000">'</span></span>,
+  indicatorElementType: <span class="c-269186"><span class="c-c60000">'</span>span<span class="c-c60000">'</span></span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>The element type of the indicator is now<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>a "span". &lt;br> Used<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countup]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters of<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>characters limit.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-change-update-speed">
+                  <div class="large-12 columns">
+                    <h2>Update Speed</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="change-update-speed"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//The update speed of the indicator could be changed</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#change-update-speed</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">9</span>,
+  indicatorUpdateSpeed: <span class="c-269186">90</span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Make your indicator update slower by specifying<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>a number in milliseconds. &lt;br> This one has a delay of 90 milliseconds.<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>[countup]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters of<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters limit.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre>
+                  </div>
+                </div>
+                <div class="row" id="r-existing-indicator">
+                  <div class="large-12 columns">
+                    <h2>Existing Indicator</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="existing-indicator"></textarea>
+                    <p id="an-existing-indicator"></p>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Use an element on the page for the indicator</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#existing-indicator</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">10</span>,
+  existingIndicator: <span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#an-existing-indicator</span></span>'),
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>If you already have an indicator element on the page,<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>use it instead.&lt;br><span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countup]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters of<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters limit.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-no-indicator">
+                  <div class="large-12 columns">
+                    <h2>No Indicator</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="no-indicator"></textarea>
+                    <p>This is not an indicator. This is to show that the indicator can be disabled.
+                      <br>The limit is 5 characters.</p>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Choose not to show the indicator at all </span>
+<span class="c-93a1a1">//as to use only the maxlength attribute on the textarea      </span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#no-indicator</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">5</span>,
+  showIndicator: <span class="c-b58900">false</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-text-length-change">
+                  <div class="large-12 columns">
+                    <h2>Change Event</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="text-length-change"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Triggers a text length change event</span>
+<span class="c-93a1a1">//Made sure to set textLengthChange to true</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#text-length-change</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  textLengthChange: <span class="c-b58900">true</span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>When the text length changes, the "sv-textLengthChange"<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>event will occur.&lt;br><span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>Have now used<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countup]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters of<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[limit].<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>.on<span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>sv-textLengthChange<span class="c-c60000">'</span></span>, <span class="c-a57800"><span class="c-268bd2">function</span> <span class="c-93a1a1">(</span>evt, infoObj)</span> <span class="c-268bd2">{</span>
+  console<span class="c-268bd2">.log</span><span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>There is a text length change for the textarea.<span class="c-c60000">'</span></span><span class="c-93a1a1">)</span>;
+  console<span class="c-268bd2">.log</span><span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>Textarea information:<span class="c-c60000">'</span></span>, infoObj<span class="c-93a1a1">)</span>;
+  <span class="c-93a1a1">//Or do something else here that is</span>
+  <span class="c-93a1a1">//based on the length of currentTextLength</span>
+  <span class="c-93a1a1">//Could be useful for attaching classes onto </span>
+  <span class="c-93a1a1">//the textarea or indicator for styling</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre>
+                  </div>
+                </div>
+                <div class="row" id="r-no-maxlength">
+                  <div class="large-12 columns">
+                    <h2>No Maxlength</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="no-maxlength"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//No maxlength</span>
+<span class="c-93a1a1">//Could be a time to use in conjunction with</span>
+<span class="c-93a1a1">//the sv-textLengthChange event</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#no-maxlength</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  limit: <span class="c-269186">1</span>,
+  useMaxlength: <span class="c-b58900">false</span>,
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Disable maxlength for no constrain on the amount of text<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>input. &lt;br> Use this option to allow for overflow or to only use the indicator. <span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>&lt;br> Used<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[countup]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters so far. Counting down characters:<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>[countdown].<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>The limit is<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>character.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>,
+  textLengthChange: <span class="c-b58900">true</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>.on<span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>sv-textLengthChange<span class="c-c60000">'</span></span>, <span class="c-a57800"><span class="c-268bd2">function</span> <span class="c-93a1a1">(</span>evt, infoObj)</span> <span class="c-268bd2">{</span>
+  console<span class="c-268bd2">.log</span><span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>There is a text length change for the textarea.<span class="c-c60000">'</span></span><span class="c-93a1a1">)</span>;
+  console<span class="c-268bd2">.log</span><span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>Textarea information:<span class="c-c60000">'</span></span>, infoObj<span class="c-93a1a1">)</span>;
+  <span class="c-93a1a1">//If infoObj.exceededLimit is true, (limit has been exceeded) can now do something about it</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre> 
+                  </div>
+                </div>
+                <div class="row" id="r-before-attachment">
+                  <div class="large-12 columns">
+                    <h2>Before Attachment</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="before-attachment"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Before attaching plugin, do something with callback</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#before-attachment</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  indicatorPhrase: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Stuff to run before the plugin attaches itself.<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>[countdown]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters used<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>of<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[limit].<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>,
+  <span class="c-a57800">beforeAttachment</span>: <span class="c-268bd2">function</span> <span class="c-93a1a1">(</span>) <span class="c-268bd2">{</span>
+    console<span class="c-268bd2">.log</span><span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>Before attaching, do something.<span class="c-c60000">'</span></span><span class="c-93a1a1">)</span>;
+  <span class="c-268bd2">}</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre>
+                  </div>
+                </div>
+                <div class="row" id="r-after-attachment">
+                  <div class="large-12 columns">
+                    <h2>After Attachment</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="after-attachment"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//After attaching plugin, do something with callback</span>
+<span class="c-93a1a1">//Reference the infoObj after finishing attachment</span>
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#after-attachment</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  <span class="c-a57800">afterAttachment</span>: <span class="c-a57800"><span class="c-268bd2">function</span> <span class="c-93a1a1">(</span>infoObj)</span> <span class="c-268bd2">{</span>
+    console<span class="c-268bd2">.log</span><span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>Info object is <span class="c-c60000">'</span></span>, infoObj<span class="c-93a1a1">)</span>;
+    console<span class="c-268bd2">.log</span><span class="c-93a1a1">(</span><span class="c-269186"><span class="c-c60000">'</span>Finished attaching, do something.<span class="c-c60000">'</span></span><span class="c-93a1a1">)</span>;
+  <span class="c-268bd2">}</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row" id="r-notes">
+              <h1>Notes</h1>
+              <p><span class="notes-desc">Tested on Opera >= 12.10, Ie >= 6 but 7, Firefox 22, Chrome 28 with jQuery 1.10.2.</span> 
+                <span
+                class="notes-desc">Attention has been made to the plugin to implement a maxlength that replicates the default maxlength behavior
+                  in a textarea. Text overflow is only allowed when setting the plugin's 'useMaxlength' to false. The plugin
+                  by default, constrains text and peforms text truncation. Simple substring operations are not done. The
+                  maxlength follows the maxlength that are in present in recent versions of Firefox, Ie, and Chrome.</span>
+                  <span
+                  class="notes-desc">This plugin will use the browser's native maxlength and will fallback to the plugin's implementation when
+                    lacking maxlength support or with only partial maxlength support.</span> <span class="notes-desc">
+              Since Ie9 has faulty support for maxlength, this plugin will monitor the textarea for exceeding the limit and impose the plugins's maxlength. However, this will also override Opera 12 maxlength implementation.</span>
+                    <span class="notes-desc">
+              To normalize behaviors of browsers, the textarea is cleared upon page refresh and tab key press is prevented when text is highlighted with the mouse.</span> 
+                    <span
+                    class="notes-desc">This plugin is mainly a theoretical exercise because most of the newer major browsers do have full support
+                      for maxlength (IE >= 10, Firefox >= 4, Opera >= 11, Chrome >= 6). Older browsers version that do not
+                      support maxlength in textarea, tend not to be supported by Jquery. The existence of this plugin is
+                      then intended to be of use with Ie 6-9.</span> <span class="notes-desc">
+              Information of form support from <a id="form-ref" href="http://www.wufoo.com/html5/">here</a>.</span>
+                      <span class="notes-desc">
+              Since browsers do not have an undo or redo event in textareas, this plugin will not support undos or redos in the textarea when using the plugin's implementation of maxlength.</span> 
+              </p>
+            </div>
+           
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+</body>
+
+</html>

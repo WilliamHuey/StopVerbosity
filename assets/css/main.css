@@ -1,0 +1,338 @@
+html {  
+  background-color: #ffc214;
+}
+
+header, img {
+  margin: 0 auto;
+}
+
+img {
+  display: block;
+}
+
+li {
+ list-style-type: none;
+}
+
+a {
+  padding: 0.1em;
+  display: inline-block;
+  text-decoration: none;
+  color: #4d362d;
+  font-weight: 600;
+  padding: 0.2em;
+}
+
+a:hover {
+  text-decoration: underline;
+  background-color: #feed39;
+}
+
+h1 {
+  font-size: 170%;
+}
+
+p {
+  font-size: 96%;
+  line-height: 140%;
+}
+
+input:focus,
+textarea:focus {
+  outline-style: none;
+}
+
+textarea {
+  width: 100%;
+  height: 150px;
+}
+
+h1 {
+  color: #ff591a;
+}
+
+h2, h3 {
+  color: #ff8905;
+}
+
+pre {
+  font-size: 0.85em;
+  padding: 10px;
+  margin-top: 0em;
+  background-color: #fbf6c6;
+  color: #586e75;
+  font-family: Consolas, monospace;
+  font-weight: 600;
+}
+
+span.notes-desc {
+  padding-top: 0px;
+  margin-bottom: 20px;
+  float: left;
+}
+
+span.c-859900 {
+  color: #859900;
+}
+
+span.c-536871 {
+  color: #536871;
+}
+
+span.c-a57800 {
+  color: #a57800;
+}
+
+span.c-93a1a1 {
+  color: #93a1a1;
+}
+
+span.c-268bd2 {
+  color: #268bd2;
+}
+
+span.c-269186 {
+  color: #269186;
+}
+
+span.c-c60000 {
+  color: #c60000;
+}
+
+span.c-b58900 {
+  color: #b58900;
+}
+
+#warn-msg-no-js-enabled {
+  text-align: center;
+  background-color: white;
+  color: red;
+  font-weight: 600;
+  border: 3px solid red;
+}
+
+#examples-ul {
+  padding-left: 5%;
+  padding-right: 10%;
+}
+
+#main-sw,
+#left-panel {
+  padding: 0em;
+}
+
+#left-panel {
+  position: fixed;
+  height: 100%;
+  overflow-y: scroll;
+  background: url('../img/noise.png');
+}
+
+#left-panel,
+#right-panel {
+  border-right: 1px solid orange;  
+}
+
+#right-panel {
+  float: right;
+  background-color: #fbfbc6;
+}
+
+#links-li {
+  background-color: red;
+  padding: 0em;
+  margin-top: 0em;
+}
+
+li.top-li-1 {
+  padding: 0em;
+}
+
+li.img-li {
+  width: 100%;
+  display: inline-block;
+}
+
+ul.top-ul-2 {
+  width: 100%;
+  margin: 0em;
+  padding: 0em;
+  text-align: center;
+}
+
+ul.top-ul-2,
+ul.top-ul-2 > li {  
+  float: left;
+}
+
+ul.top-ul-2 > li > a {
+  display: inline-block;
+  padding: 15px;
+  color: white;
+}
+
+a.top-img-link {
+  float: left;
+  display: inline-block;  
+  width: 100%;
+}
+
+#stop-verbosity-h1 {
+  text-align: center;
+  color: #B93401;
+}
+
+#blog-link:hover,
+#github-logo-link:hover {
+  background-color: #ffb54d;
+}
+  
+#blog-link {
+  background: url('../img/Blog.png') no-repeat 30% 50%;
+}
+
+#github-logo-link {
+  background: url('../img/Github-logo-white.png') no-repeat 10% 50%;
+}
+
+#tl-blog,
+#tl-download {
+  background-color: #ff9724;
+}
+
+#left-panel-row > ul {
+  padding-left: 11%;
+  width: 80%;
+  margin: auto;
+}
+
+#left-panel-row > ul > li {
+  margin-bottom: 0.5em;
+}
+
+.large-11.large-centered.columns > .row {
+  padding: 0em 1.5em;  
+}
+
+.large-12.large-centered.columns > .row {
+  padding: 1em 0em;
+  border-bottom: 1px solid #c9c7c5;
+}
+
+#r-description,
+#examples-h,
+#r-notes,
+#r-defaults {
+  margin-top: 30px;
+}
+
+#r-center-examples {
+  width: 98%;
+}
+
+#examples-ul > li {
+  margin-bottom: 0.3em;
+}
+
+#r-default > h2 {
+  margin-top: 0.1em;
+}
+
+#r-description {
+  margin-top: 60px;
+}
+
+
+#options-explanations {
+  max-height: 373px;
+  overflow-x: scroll;
+}
+
+#options-explanations > .row{
+  padding: 0px 15px;
+}
+
+pre, #options-explanations {
+  border: 1px solid gray;
+}
+
+#r-notes {
+  margin-bottom: 50px;
+}
+
+#indicator-before-textarea {
+  margin-bottom: 22px;
+}
+
+#span-element {
+  margin-bottom: 15px;
+  padding-top: 20px;
+  float: left;
+}
+
+#r-after-attachment {
+  border-bottom: 0px;
+}
+
+#form-ref:hover {
+  background-color: #fbfbc6;
+}
+
+@media (min-width: 1600px) {
+  #left-panel-row > ul {
+    padding-left: 0%;
+    width: 50%;
+  }
+}
+
+@media (max-width: 1250px) {
+  #blog-link {
+    background-position: 25% 50%;
+  }
+  #github-logo-link {
+    background-position: 11% 50%;
+  }
+}
+
+@media (max-width: 1025px) {
+  #blog-link {
+    background-position: 10% 50%;
+  }
+  #github-logo-link {
+    background-position: 4% 50%;
+  }
+}
+
+@media (max-width: 900px) {
+  #blog-link {
+    background: none;
+  }
+  #github-logo-link {
+    background: none;
+  }
+}
+
+@media (max-width: 930px) {
+  pre {
+    overflow-x: scroll;
+  }
+}
+
+@media (max-width: 785px) {
+  #left-panel-row > ul {
+    padding-right: 11%;
+  }
+  #left-panel-row > ul,
+  #left-panel-row a {
+    width: 100%;
+  } 
+  #left-panel-row a {
+    padding: 10px;
+  }
+  #left-panel {
+    position: relative;
+  }
+  #left-panel-row {
+    margin-right: 0em;
+  }
+}

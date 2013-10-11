@@ -1,7 +1,7 @@
 {
     "name": "stopVerbosity",
     "title": "Stop Verbosity",
-    "description": "Limit the amount of text that is permitted in a textarea.",
+    "description": "Stop Verbosity is a jQuery plugin that limit the amount of text that is permitted in a textarea element by replicating the maxlength attribute for the textarea. A line of text, the indicator/counter, counts characters used or remaining when text is entered into the textarea. Once the limit is reached, there is no more text input from typing, pasting or drag and drop.",
     "keywords": [
         "maxlength",
         "limit",
@@ -12,7 +12,7 @@
         "textarea",
         "counter"
     ],
-    "version": "1.12.2",
+    "version": "1.13.0",
     "author": {
         "name": "William Huey",
         "email": "wklhuey@gmail.com",
@@ -26,6 +26,7 @@
     ],
     "bugs": "",
     "homepage": "https://github.com/WilliamHuey/StopVerbosity",
+	  "demo": "http://williamhuey.github.io/code/stopverbosity",
     "docs": "https://github.com/WilliamHuey/StopVerbosity",
     "dependencies": {
         "jquery": ">=1.7"
