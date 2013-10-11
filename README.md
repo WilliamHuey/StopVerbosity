@@ -75,24 +75,24 @@ Option Details:
 	
 ###useNativeMaxlength (boolean)	
     Uses the browser's maxlength if supported when set to true. 
-	However, setting this to false will use the plugin's implementation of maxlength. 
-	Should only set to false for testing purposes.
+	  However, setting this to false will use the plugin's implementation of maxlength. 
+	  Should only set to false for testing purposes.
 	
 ###textLengthChange (boolean)
-   Triggers an event when set to true. 
-   Allows for a callback when there is a change in the text length of the textarea. 
-   This is useful for doing something that this plugin does not provide.
+    Triggers an event when set to true. 
+    Allows for a callback when there is a change in the text length of the textarea. 
+    This is useful for doing something that this plugin does not provide.
 
 ###useMaxlength (boolean)
-   When set to false, maxlength is not implemented on the textarea. 
-   If the indicator is still present, the plugin will act as character counter. 
-   Set 'useMaxlength' to false to allow for overflow.
+    When set to false, maxlength is not implemented on the textarea. 
+    If the indicator is still present, the plugin will act as character counter. 
+    Set 'useMaxlength' to false to allow for overflow.
    
 ###beforeAttachment (function)   
-   Accepts and runs the function that is provided before the plugin initializes (attaching events).
+    Accepts and runs the function that is provided before the plugin initializes (attaching events).
    
 ###afterAttachment (function)   
-   Similar to beforeAttachment but runs the function after plugin initializes.   
+    Similar to beforeAttachment but runs the function after plugin initializes.
 
 Notes:
 ------
