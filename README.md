@@ -114,6 +114,9 @@ Since browsers do not have an undo or redo event in textareas, this plugin will 
 
 ChangeLog:
 ------
+v1.13.2
+* Fix: Update minified source
+
 v1.13.1
 * Fix: Readme demo link update
 
