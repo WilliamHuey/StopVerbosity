@@ -319,6 +319,9 @@ pre, #options-explanations {
 }
 
 @media (max-width: 785px) {
+  #left-panel {
+    overflow-y: auto;
+  }
   #left-panel-row > ul {
     padding-right: 11%;
   }
