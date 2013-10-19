@@ -3,7 +3,7 @@
  *  Description: Limits and counts the characters in a textarea.
  *  Author: William Huey
  *  License: MIT
- *  Version: 1.13.2
+ *  Version: 1.13.3
  *
  *  Credits:
  *  Tim Down (getInputSelection, setInputSelection)
@@ -333,7 +333,7 @@
                     ep.setDataStore('eventPrevent', 'keydown');
                     ep.removeDataStore('eventPresent');
                     //Remove the keydown listener
-                    $el.off('keydown');
+                    $el.off('keydown.' + pluginName);
                     //Prevent default on certain keypresses
                     ep.keydownFunction.keydownPrevent();
                     //Prevent pasting
@@ -348,7 +348,7 @@
                     ep.setDataStore('eventPresent', 'keydown');
                     //Remove the event prevent on keydown
                     //and prevent paste function
-                    $el.off('keydown').off('paste');
+                    $el.off('keydown.' + pluginName).off('paste.' + pluginName);
                     //Restore the original keydown
                     ep.keydownFunction.keydown();
                   }
@@ -529,7 +529,7 @@
                 }
               };
               //Input change listener
-              $el.on('input propertychange', function () {
+              $el.on('input.' + pluginName + ' ' + 'propertychange.' + pluginName, function () {
                 //CheckFirstKeyDown for Ie8
                 ds.checkFirstKeyDown = false;
                 //To determine drop change
@@ -625,7 +625,7 @@
                     if (revertString.length <= limit) {
                       $el.val(revertString);
                       //Force an input event to allow text handling
-                      $el.trigger('propertychange');
+                      $el.trigger('propertychange.' + pluginName);
                     }
                   } else {
                     //Only need to update the indicator if using only the counter
@@ -637,9 +637,9 @@
               //A test for partialInputSupport for Ie9
               if (ds.partialInputSupport) {
                 //For Ie9 where deleting text does not trigger input
-                $(document).on('selectionchange', function () {
+                $(document).on('selectionchange.' + pluginName, function () {
                   if (ep.getTextAreaLength() < ds.lengthText) {
-                    $el.trigger('propertychange');
+                    $el.trigger('propertychange.' + pluginName);
                   }
                 });
               }
@@ -647,7 +647,7 @@
             dropFunction: function () {
               //Alias dataStore
               var ds = ep.dataStore;
-              $el.on('drop', function () {
+              $el.on('drop.' + pluginName, function () {
                 //Check to prevent triggering for Ie
                 ep.dataStore.dropOccurred = true;
                 //Using a timer as a way to get caret after drop event
@@ -679,12 +679,12 @@
                   //To ensure that input handler will process
                   ep.dataStore.dropOccurred = false;
                   //Input was not prevented from occurring at last so now run it
-                  $el.trigger('input');
+                  $el.trigger('input.' + pluginName);
                 });
               });
             },
             pastePreventFunction: function () {
-              $el.on('paste', function (evt) {
+              $el.on('paste.' + pluginName, function (evt) {
                 ep.negateEvent(evt);
               });
             },
@@ -700,12 +700,12 @@
                   }
                 } else if (status === 'greater') {
                   //For Ie8
-                  $el.trigger('propertychange');
+                  $el.trigger('propertychange.' + pluginName);
                 }
               });
             },
             selectFunction: function (input) {
-              $el.on('select', function () {
+              $el.on('select.' + pluginName, function () {
                 //Prevent triggers on dragging of text into textarea for Opera 12
                 if (ep.dataStore.dropOccurred) {
                   return;
@@ -735,21 +735,30 @@
               });
             },
             trackSelectionEventsFunction: function () {
-              $el.on('mouseout focus blur keyup', function () {
+            var trackSelectionEvts = ['mouseout', 'focus', 'blur', 'keyup'],
+            groupEvts = ep.appendNameSpace(trackSelectionEvts, pluginName);
+              $el.on(groupEvts, function () {
                 //Track if selection is present
                 setTimeout(function () {
                   ep.trackSelectionFunction();
                 });
               });
             },
+            appendNameSpace: function(theArray, namespace) {
+              var arrayLen = theArray.length,
+                i = 0;
+              for(;i < arrayLen; i++) {
+                theArray[i] = theArray[i] + '.' + namespace;
+              }
+            },
             mousedownFunction: function () {
-              $el.on('mousedown', function () {
+              $el.on('mousedown.' + pluginName, function () {
                 //Track mousedown event
                 ep.setDataStore('isMouseDown', true);
               });
             },
             clickFunction: function () {
-              $el.on('click', function () {
+              $el.on('click.' + pluginName, function () {
                 //Track if selection is present
                 setTimeout(function () {
                   ep.trackSelectionFunction();
@@ -768,7 +777,7 @@
                     if (ds.continueKeyCheck) {
                       setTimeout(function () {
                         if (ep.getTextAreaLength() > 0) {
-                          $el.trigger('propertychange');
+                          $el.trigger('propertychange.' + pluginName);
                         }
                       });
                     }
@@ -776,7 +785,7 @@
                   //When using backspace to delete
                   if (caller === 'keyprevent') {
                     setTimeout(function () {
-                      $el.trigger('propertychange');
+                      $el.trigger('propertychange.' + pluginName);
                     });
                   }
               };
@@ -793,7 +802,7 @@
               };
               //The keydown prevent function when limit is reached
               this.keydownFunction.keydownPrevent = function () {
-                $el.on('keydown', function (evt) {
+                $el.on('keydown.' + pluginName, function (evt) {
                   //Preserve some keys after textarea is full: f-keys, arrows, backspace etc.
                   //Code to keys chart http://pastebin.com/z5LH4x9f
                   if (
@@ -819,10 +828,10 @@
               };
               //Remove the keydown listener to prevent
               //Multiple keydown listener from being attached
-              $el.off('keydown');
+              $el.off('keydown.' + pluginName);
               //Default tracking of keydown listener
               this.keydownFunction.keydown = function () {
-                $el.on('keydown', function (evt) {
+                $el.on('keydown.' + pluginName, function (evt) {
                   ep.keydownFunction.checkTab(evt);
                   ep.keydownFunction.checkFirstKeyDown();
                   setTimeout(function () {
