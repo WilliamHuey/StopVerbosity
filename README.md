@@ -32,7 +32,8 @@ $(document).ready(function () {
     textLengthChange: false,
     useMaxlength: true,
 	beforeAttachment: null,
-	afterAttachment: null
+	afterAttachment: null,
+    existingText: 'clear'
   });
 })
 </script>
@@ -94,6 +95,11 @@ Option Details:
 ###afterAttachment (function)   
     Similar to beforeAttachment but runs the function after plugin initializes.
 
+###existingText (string)    
+    Could be 'clear' or 'truncate'. Determines how existing text is treated during initialization.
+    The 'clear' option will clear out any existing text during initialization,
+    while the 'truncate' option will truncate any excess characters to the right based on the limit.
+
 Notes:
 ------
 Tested on Opera >= 12.10, Ie >= 6 but 7, Firefox 22, Chrome 28 with jQuery 1.10.2. 
@@ -114,6 +120,10 @@ Since browsers do not have an undo or redo event in textareas, this plugin will 
 
 ChangeLog:
 ------
+v1.14.0
+* Add: Preserve text option on plugin initialization
+* Refactor: Thrown errors, Key check
+
 v1.13.3
 * Refactor: Namespace events
 

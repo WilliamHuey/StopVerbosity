@@ -147,17 +147,24 @@
     //After attaching plugin, do something callback
     $('#after-attachment').stopVerbosity({
       indicatorPhrase: ['Run a function when the plugin finishes initializing and attaching events.',
-        'Used', '[countup]', 'characters so far', 'The limit is', '[limit]', 'character.'
+        'Used', '[countup]', 'characters so far.', 'The limit is', '[limit]', 'character.'
       ],
       afterAttachment: function (infoObj) {
         //Reference the infoObj after finishing attachment
         console.log('Info object is ', infoObj);
         console.log('Finished attaching, do something.');
       }
-    });
-    
-  });
-  
+    });    
+    //Put some text in textarea that exceeds
+    //the limit first
+    $('#text-truncation').val('a lot of words');
+    //Truncate existing text
+    $('#text-truncation').stopVerbosity({
+      indicatorPhrase: ['Original words in textarea was "a lot of words".', 'The limit is', '[limit]', 'characters.'],
+      limit: 5,
+      existingText: 'truncate'
+    });    
+  });  
   </script>
 </head>
 
@@ -210,6 +217,9 @@
                 <li><a href="#r-before-attachment">Before Attachment</a>
                 </li>
                 <li><a href="#r-after-attachment">After Attachment</a>
+                </li>
+                <li>
+                  <a href="#r-truncation">Text Truncation</a>
                 </li>
               </ul>
             </li>
@@ -273,7 +283,10 @@
   showIndicator: <span class="c-b58900">true</span>,
   useNativeMaxlength: <span class="c-b58900">true</span>,
   textLengthChange: <span class="c-b58900">false</span>,
-  useMaxlength: <span class="c-b58900">true</span>
+  useMaxlength: <span class="c-b58900">true</span>,
+  beforeAttachment: <span class="c-b58900">null</span>,
+  afterAttachment: <span class="c-b58900">null</span>,
+  existingText: <span class="c-269186"><span class="c-c60000">'</span>clear<span class="c-c60000">'</span></span>
 <span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
 </pre>
                   </div>
@@ -316,6 +329,10 @@
                       <p>Accepts and runs the function that is provided before the plugin initializes (attaching events).</p>
                       <h3>afterAttachment (function)</h3>
                       <p>Similar to beforeAttachment but runs the function after plugin initializes.</p>
+                      <h3>existingText (string)</h3>
+                      <p>Could be 'clear' or 'truncate'. Determines how existing text is treated during initialization.
+    The 'clear' option will clear out any existing text during initialization,
+    while the 'truncate' option will truncate any excess characters to the right based on the limit.</p>
                       
                     </div>
 
@@ -619,6 +636,28 @@
 </pre>
                   </div>
                 </div>
+                <div class="row" id="r-truncation">
+                  <div class="large-12 columns">
+                    <h2>Text Truncation</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea id="text-truncation"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//Existing text in textarea is trucated if text is greater than the limit.</span>
+
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#text-truncation</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  <span class="c-a57800">indicatorPhrase</span>: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Orignal words in textarea was "a lot of words".<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>The limit is<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>of<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>,
+   <span class="c-a57800">limit</span>:<span class="c-269186"> 10</span>,
+   <span class="c-536871"><span class="c-a57800">existingText</span>:<span class="c-269186"><span class="c-c60000">'</span>truncate<span class="c-c60000">'</span></span></span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre>
+                  </div>
+                </div>
+
+
               </div>
             </div>
             <div class="row" id="r-notes">

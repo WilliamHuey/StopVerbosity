@@ -216,7 +216,7 @@ a.top-img-link {
 
 .large-12.large-centered.columns > .row {
   padding: 1em 0em;
-  border-bottom: 1px solid #c9c7c5;
+  border-top: 1px solid #c9c7c5;
 }
 
 #r-description,
@@ -232,6 +232,10 @@ a.top-img-link {
 
 #examples-ul > li {
   margin-bottom: 0.3em;
+}
+
+#r-default {
+  border-top: none;
 }
 
 #r-default > h2 {

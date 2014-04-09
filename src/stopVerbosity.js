@@ -3,7 +3,7 @@
  *  Description: Limits and counts the characters in a textarea.
  *  Author: William Huey
  *  License: MIT
- *  Version: 1.13.3
+ *  Version: 1.14.0
  *
  *  Credits:
  *  Tim Down (getInputSelection, setInputSelection)
@@ -12,21 +12,21 @@
  *    http://benalpert.com/2013/06/18/a-near-perfect-oninput-shim-for-ie-8-and-9.html
  *
  */
-;(function ($, window, document, undefined) {
+ 
+;(function($, window, document, undefined) {
   'use strict';
   //Quick disabling of logging
   //var console = {};
   //console.log = function(){}; 
   var pluginName = 'stopVerbosity';
-  var PluginWrapper = function (element, options) {
+  var PluginWrapper = function(element, options) {
     //Defaults options
     var defaults = {
       limit: 10,
       indicatorPosition: 'after',
       indicatorId: '',
       indicatorElementType: 'p',
-      indicatorPhrase: ['Used', '[countup]', 'of', '[limit]',
-        'characters.',
+      indicatorPhrase: ['Used', '[countup]', 'of', '[limit]', 'characters.',
         '[countdown]', 'characters remaining.', 'The maximum is', '[limit]',
         'characters.', '<br>', 'Permits multiple counts up:', '[countup]',
         'and counts down:', '[countdown].',
@@ -40,42 +40,43 @@
       textLengthChange: false,
       useMaxlength: true,
       beforeAttachment: null,
-      afterAttachment: null
+      afterAttachment: null,
+      existingText: 'clear'
     };
     //Initializing main plugin with options
-    var plugin = function (element, options) {
+    var plugin = function(element, options) {
       plugin.element = element;
       plugin.options = $.extend({}, defaults, options);
     };
     var plugProto = plugin.prototype = {
-      init: function () {
+      init: function() {
         var $el = $(element);
         //SetupActions is the initialization process
         //E.g., checks for options input, inserts indicator (counter)
         //Also add event listeners to the element
         var setupActionData = plugProto.setupActions().init($el, plugin.options);
-        plugProto.eventsActions($el).init(plugin.options.limit,
-          setupActionData);
+        plugProto.eventsActions($el).init(plugin.options.limit, setupActionData);
       },
-      setupActions: function () {
+      setupActions: function() {
         //The initialization object for the plugin object
-        var Setup = function () {};
+        var Setup = function() {};
         Setup.prototype = {
-          init: function ($el, options) {
+          init: function($el, options) {
             //Callback after all elements with events 
-              //are created and attached
-              try {
-                if(Object.prototype.toString.call(options.beforeAttachment) === '[object Function]'){
-                  options.beforeAttachment.call($el);
-                } 
-              } catch (error) {
-                throw 'beforeAttachment is not a proper function.';
-              }   
-          
+            //are created and attached
+            try {
+              if (Object.prototype.toString.call(options.beforeAttachment) ===
+                '[object Function]') {
+                options.beforeAttachment.call($el);
+              }
+            } catch (error) {
+              throw new TypeError('beforeAttachment is not a proper function.');
+            }
+
             //Polyfill indexOf, for Ie
             //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
             if (!Array.prototype.indexOf) {
-              Array.prototype.indexOf = function (searchElement, fromIndex) {
+              Array.prototype.indexOf = function(searchElement, fromIndex) {
                 if (this == null) {
                   throw new TypeError();
                 }
@@ -105,8 +106,7 @@
                 return -1;
               };
             }
-            //Clear out the textarea upon refresh
-            $el.val('');
+
             //Alias and expose options to prototype
             var limit = options.limit,
               indicatorPosition = options.indicatorPosition,
@@ -116,7 +116,8 @@
               existingIndicator = options.existingIndicator,
               generateIndicator = options.generateIndicator,
               showIndicator = options.showIndicator,
-              useNativeMaxlength = options.useNativeMaxlength;
+              useNativeMaxlength = options.useNativeMaxlength,
+              existingText = options.existingText;
             //Quick reference for the plugin prototype and dataStore
             var setupProto = Setup.prototype,
               setupDataStore = setupProto.setupDataStore;
@@ -127,25 +128,33 @@
             setupDataStore.useMaxlength = options.useMaxlength;
             setupDataStore.showIndicator = showIndicator;
             setupDataStore.afterAttachment = options.afterAttachment;
+            setupDataStore.existingText = options.existingText;
             //Check character limit value in textarea
             setupProto.checkLimitOption(limit);
             //Check for clearing of text in textarea
             //Insert the indicator (character counter) near textarea
             setupProto.setIndicator(limit, indicatorElementType,
               indicatorId, indicatorPosition, indicatorPhrase, $el,
-              existingIndicator, generateIndicator, showIndicator);
+              existingIndicator, generateIndicator, showIndicator,
+              existingText);
             //After initializing, return phrase info
             return setupProto.setupDataStore;
           },
-          checkLimitOption: function (limit) {
+          checkLimitOption: function(limit) {
             //Check the supply word limit
-            if(!(typeof limit === 'number' && parseFloat(limit) == parseInt(limit, 10) && !isNaN(limit) && limit > 0)) {
-               throw 'Text limit is not a valid positive integer.';
+            if (typeof limit !== 'number') {              
+              if (parseFloat(limit) == parseInt(limit, 10) && 
+                !isNaN(limit) && limit > 0) {
+                throw new RangeError('Text limit is not a valid positive integer.');
+              } else {
+                throw new TypeError('Specified text limit is not a number.');
+              }
             }
           },
-          setIndicator: function (limit, indicatorElementType,
+          setIndicator: function(limit, indicatorElementType,
             indicatorId, indicatorPosition, indicatorPhrase, $el,
-            existingIndicator, generateIndicator, showIndicator) {
+            existingIndicator, generateIndicator,
+            showIndicator, existingText) {
             //Only use an indicator when set to true
             if (!showIndicator) {
               return;
@@ -202,13 +211,14 @@
                         backPhrase = phraseItem.slice(backStart,
                           phraseItemLen);
                       switch (currentKey) {
-                      case 'limit':
-                      case 'countdown':
-                        indicatorPhrase[j] = frontPhrase + limit + backPhrase;
-                        break;
-                      case 'countup':
-                        indicatorPhrase[j] = frontPhrase + '0' + backPhrase;
-                        break;
+                        case 'limit':
+                        case 'countdown':
+                          indicatorPhrase[j] = frontPhrase + limit +
+                            backPhrase;
+                          break;
+                        case 'countup':
+                          indicatorPhrase[j] = frontPhrase + '0' + backPhrase;
+                          break;
                       }
                       var backDifference = phraseItemLen - backStart;
                       //Only need the first part ending index
@@ -239,14 +249,14 @@
                   //Countup starts at zero
                   //while countdown and limit starts at the limit
                   switch (currentKey) {
-                  case 'countup':
-                    //Count up starting from zero
-                    indicatorPhrase[pIndex] = 0;
-                    break;
-                  default:
-                    //Counting down and the limit starts from the limit
-                    data.phrase[pIndex] = data.limit;
-                    break;
+                    case 'countup':
+                      //Count up starting from zero
+                      indicatorPhrase[pIndex] = 0;
+                      break;
+                    default:
+                      //Counting down and the limit starts from the limit
+                      data.phrase[pIndex] = data.limit;
+                      break;
                   }
                 }
               }
@@ -263,7 +273,8 @@
             this.setupDataStore.indicatorPhrase = indicatorPhrase;
             //Use an element that is already on the page
             //Check for jQuery object passed in
-            if (Object.prototype.toString.call(existingIndicator) === '[object Object]') {
+            if (Object.prototype.toString.call(existingIndicator) ===
+              '[object Object]') {
               try {
                 if (existingIndicator instanceof jQuery) {
                   this.setupDataStore.indicatorElement = existingIndicator;
@@ -271,7 +282,7 @@
                   generateIndicator = false;
                 }
               } catch (error) {
-                throw 'Not a jQuery Object.';
+                throw new TypeError('Not a jQuery Object.');
               }
             }
             //Generate the indicator if no default element is given
@@ -295,9 +306,10 @@
                 $el.before(indicatorElement);
                 this.setupDataStore.indicatorElement = $el.prev();
               } else {
-                throw indicatorError;
+                throw new Error(indicatorError);
               }
             }
+
           },
           setupDataStore: {
             limit: [],
@@ -307,25 +319,26 @@
         };
         return Setup.prototype;
       },
-      eventsActions: function ($el) {
+      eventsActions: function($el) {
         //The events object for the plugin object
-        var Events = function () {},
+        var Events = function() {},
           ep = Events.prototype = {
-            init: function (limit, setupActionData) {
+            init: function(limit, setupActionData) {
               //Reference the Events prototype
               //Add event listeners to the textarea
               ep.addListeners(limit, setupActionData);
             },
-            addListeners: function (limit, setupActionData) {                        
+            addListeners: function(limit, setupActionData) {
               //Alias the dataStore
               var ds = this.dataStore;
               //Set commonly accessed items to the datastore
               ds.limit = limit;
               ds.indicator = setupActionData;
               var indicatorUpdateSpeed = setupActionData.indicatorUpdateSpeed;
+              var existingText = setupActionData.existingText;
               //For key prevention and allowance
               var input = {
-                preventFunction: function () {
+                preventFunction: function() {
                   //See if keydown prevent is already used
                   //If no keyprevent present
                   if (ds.eventPrevent === null && !ds.isTextSelected) {
@@ -340,7 +353,7 @@
                     ep.pastePreventFunction();
                   }
                 },
-                allowFunction: function () {
+                allowFunction: function() {
                   //See if keydown prevent is already used
                   if (ds.eventPrevent !== null) {
                     //Track the prevented events and removed events
@@ -348,12 +361,13 @@
                     ep.setDataStore('eventPresent', 'keydown');
                     //Remove the event prevent on keydown
                     //and prevent paste function
-                    $el.off('keydown.' + pluginName).off('paste.' + pluginName);
+                    $el.off('keydown.' + pluginName).off('paste.' +
+                      pluginName);
                     //Restore the original keydown
                     ep.keydownFunction.keydown();
                   }
                 },
-                changeText: function (countArray) {
+                changeText: function(countArray) {
                   var indicator = ds.indicator,
                     i = 0,
                     countArrayLen = countArray.length;
@@ -376,15 +390,19 @@
                             //Get the old text from stored phrase
                             var firstPart = phraseItem.slice(0, keyContent.firstEnd),
                               lastFirstIndex = phraseLen - keyContent.backDifference,
-                              lastBackIndex = keyContent.backDifference + phraseLen,
-                              lastPart = phraseItem.slice(lastFirstIndex, lastBackIndex);
+                              lastBackIndex = keyContent.backDifference +
+                                phraseLen,
+                              lastPart = phraseItem.slice(lastFirstIndex,
+                                lastBackIndex);
                             var newPhraseItem;
                             if (countType === 'countdownCoupled') {
                               textAmount = limit - ep.getTextAreaLength();
-                              newPhraseItem = firstPart + textAmount + lastPart;
+                              newPhraseItem = firstPart + textAmount +
+                                lastPart;
                             } else if (countType === 'countupCoupled') {
                               textAmount = ep.getTextAreaLength();
-                              newPhraseItem = firstPart + textAmount + lastPart;
+                              newPhraseItem = firstPart + textAmount +
+                                lastPart;
                             }
                             //Update the phrase item in the phrase
                             indicator.indicatorPhrase[key] = newPhraseItem;
@@ -414,7 +432,7 @@
                   //Overwrite the older text for indicator on the page
                   //Use a timer if a integer value is given 
                   if (indicatorUpdateSpeed > 0) {
-                    setTimeout(function () {
+                    setTimeout(function() {
                       indicator.indicatorElement.html(indicator.indicatorPhrase
                         .join(" "));
                     }, indicatorUpdateSpeed);
@@ -424,13 +442,13 @@
                   }
                 },
                 //Provides an event for change in content length within textarea
-                textLengthChange: function (lastTextLength) {
+                textLengthChange: function(lastTextLength) {
                   if (setupActionData.textLengthChange) {
                     var currentTextLength = ep.getTextAreaLength();
                     if (currentTextLength !== lastTextLength) {
                       tlcObj.currentTextLength = currentTextLength;
-                      tlcObj.lastTextLength = lastTextLength;                      
-                      if(currentTextLength < limit) {
+                      tlcObj.lastTextLength = lastTextLength;
+                      if (currentTextLength < limit) {
                         tlcObj.isLimitReached = false;
                         tlcObj.exceededLimit = false;
                       } else if (currentTextLength === limit) {
@@ -449,8 +467,8 @@
               //Object for textLengthChange to provide information 
               var tlcObj = input.textLengthChange.obj = {};
               //Attach element information to the tlcObj object
-              tlcObj.element = plugin.element;              
-              if(ds.indicator.indicatorElement) {
+              tlcObj.element = plugin.element;
+              if (ds.indicator.indicatorElement) {
                 tlcObj.indicatorElement = ds.indicator.indicatorElement;
               }
               //Create a textarea element for detecting support of attributes
@@ -460,8 +478,7 @@
               if ('oninput' in textareaElement) {
                 //Partial support but still needed to check for full support
                 ds.partialInputSupport = true;
-                if (!('documentMode' in document) || document.documentMode >
-                  9) {
+                if (!('documentMode' in document) || document.documentMode > 9) {
                   //Full input support
                   checkFirstKeyDown = false;
                   ds.supportsInput = true;
@@ -477,13 +494,13 @@
               //Attach the attribute maxlength if supported
               if ( !! ('maxLength' in textareaElement)) {
                 //Check for use of native maxlength
-                if (setupActionData.useNativeMaxlength && setupActionData.useMaxlength) {
+                if (setupActionData.useNativeMaxlength &&
+                  setupActionData.useMaxlength) {
                   $el.attr('maxlength', limit);
                 }
               }
               //Helper for setInputSelection
-              ep.setInputSelection.offsetToRangeCharacterMove = function (el,
-                offset) {
+              ep.setInputSelection.offsetToRangeCharacterMove = function(el, offset) {
                 return offset - (el.value.slice(0, offset).split('\r\n').length - 1);
               };
               //Attach initial set of event listeners
@@ -495,25 +512,40 @@
               ep.mousedownFunction();
               ep.clickFunction();
               ep.keydownFunction();
-              
+
+              //Clear out the textarea upon refresh
+              if (existingText === 'clear') {
+                $el.val("");
+              } else if (existingText === 'truncate') {
+                //Existing text will be truncated it there is text to be preserved
+                //that exceeds the limit
+                //Only trigger change if there is text
+                if ($el.val().length > 0) {
+                  $el.trigger('propertychange.' + pluginName);
+                }
+              } else {
+                throw new Error('Must be string value of "clear" or "truncate".');
+              }
+
               //Callback after all elements with events 
               //are created and attached
               try {
-                if(Object.prototype.toString.call(setupActionData.afterAttachment) === '[object Function]'){
+                if (Object.prototype.toString.call(setupActionData.afterAttachment) ===
+                  '[object Function]') {
                   setupActionData.afterAttachment.call($el, tlcObj);
-                } 
+                }
               } catch (error) {
-                throw 'afterAttachment is not a proper function.';
-              }                         
+                throw new TypeError('afterAttachment is not a proper function.');
+              }
             },
-            inputFunction: function (input) {
+            inputFunction: function(input) {
               var ds = ep.dataStore,
-                strVars = ['countdown', 'countup', 'countdownCoupled',
-                  'countupCoupled'
+                strVars = ['countdown', 'countup', 
+                  'countdownCoupled','countupCoupled'
                 ],
                 tempObj = {};
               //Function to update the indicator if appropriate
-              var updateIndicator = function () {
+              var updateIndicator = function() {
                 if (ds.indicator.showIndicator) {
                   //Determines text changes and the speed of change
                   input.changeText(strVars);
@@ -529,129 +561,132 @@
                 }
               };
               //Input change listener
-              $el.on('input.' + pluginName + ' ' + 'propertychange.' + pluginName, function () {
-                //CheckFirstKeyDown for Ie8
-                ds.checkFirstKeyDown = false;
-                //To determine drop change
-                if (ep.dataStore.dropOccurred) {
-                  ep.dataStore.dropOccurred = false;
-                  return;
-                }
-                //Get the limit
-                var limit = ds.limit,
-                  //See if limit is reached in textarea
-                  status = ep.checkLimit(limit);
-                ep.setDataStore('textStatus', status);
-                //Less than the limit
-                if (status === 'less') {
-                  //Have not reach the limit yet
-                  //Check for eventprevent from reaching the limit
-                  if (ds.falsePositive) {
-                    input.allowFunction();
+              $el.on('input.' + pluginName + ' ' + 'propertychange.' +
+                pluginName, function() {
+                  //CheckFirstKeyDown for Ie8
+                  ds.checkFirstKeyDown = false;
+                  //To determine drop change
+                  if (ep.dataStore.dropOccurred) {
+                    ep.dataStore.dropOccurred = false;
+                    return;
                   }
-                  //For updating the indicator if there is one
-                  updateIndicator();
-                  //Have to use a timer because of a Chrome bug
-                  //http://code.google.com/p/chromium/issues/detail?id=32865
-                  setTimeout(function () {
-                    ep.trackSelectionFunction();
-                  });
-                } else if (status === 'equal') {
-                  //Equal to the limit, prevent key presses
-                  if (ds.falsePositive) {
-                    if (ds.indicator.useMaxlength) {
-                      input.preventFunction();
-                    }
-                  }
-                  //For updating the indicator if there is one
-                  updateIndicator();
-                  setTimeout(function () {
-                    ep.trackSelectionFunction();
+                  //Get the limit
+                  var limit = ds.limit,
+                    //See if limit is reached in textarea
+                    status = ep.checkLimit(limit);
+                  ep.setDataStore('textStatus', status);
+                  //Less than the limit
+                  if (status === 'less') {
+                    //Have not reach the limit yet
+                    //Check for eventprevent from reaching the limit
                     if (ds.falsePositive) {
-                      //Only need to reset the caret when exceeded length from pasting
-                      if (typeof ep.dataStore.newCaretPos === 'number') {
-                        var newCaretPos = ep.dataStore.newCaretPos;
-                        ep.setInputSelection(newCaretPos, newCaretPos);
-                        ep.dataStore.newCaretPos = null;
+                      input.allowFunction();
+                    }
+                    //For updating the indicator if there is one
+                    updateIndicator();
+                    //Have to use a timer because of a Chrome bug
+                    //http://code.google.com/p/chromium/issues/detail?id=32865
+                    //Have to use timer or else Chrome will not track selection
+                    //on input change event
+                    setTimeout(function() {
+                      ep.trackSelectionFunction();
+                    });
+                  } else if (status === 'equal') {
+                    //Equal to the limit, prevent key presses
+                    if (ds.falsePositive) {
+                      if (ds.indicator.useMaxlength) {
+                        input.preventFunction();
                       }
                     }
-                  });
-                } else if (status === 'greater') {
-                  //In case there is a false positive
-                  //for maxlength support
-                  ds.falsePositive = true;
-                  //Correction for Ie6-8
-                  //to properly detect text selection prior to pasting 
-                  if (ds.selectBeforeKeydown) {
-                    ds.caretStatus = ds.selectCaretStatus;
-                  }
-                  //Only calculate the text to restore when
-                  //plugin is set to use maxlength
-                  if (ds.indicator.useMaxlength) {
-                    var newLength = ep.getTextAreaLength(),
-                      oldCaret = ds.caretStatus,
-                      oldCaretStart = oldCaret.start,
-                      oldCaretEnd = oldCaret.end,
-                      oldLength = ds.lengthText,
-                      charactersLeft = limit - oldLength,
-                      textString = ep.getText();
-                    //For the new phrase
-                    var frontEnd,
-                      backFront,
-                      middleFront,
-                      middleBack;
-                    //Text was selected before
-                    if (ds.isTextSelected || ds.selectBeforeKeydown) {
-                      frontEnd = oldCaret.end;
-                      middleFront = oldCaret.end;
-                      middleBack = charactersLeft + oldCaretEnd;
-                      backFront = newLength - (oldLength - oldCaretEnd);
-                    } else {
-                      //Text was not selected before
-                      frontEnd = oldCaretStart;
-                      middleFront = oldCaretStart;
-                      middleBack = charactersLeft + oldCaretStart;
-                      backFront = newLength - (oldLength - oldCaretStart);
-                    }
-                    //Correct the string when the length is exceeded
-                    var front = textString.slice(0, frontEnd),
-                      middle = textString.slice(middleFront, middleBack),
-                      back = textString.slice(backFront, newLength),
-                      revertString = front + middle + back,
-                      newCaretPos = front.length + middle.length;
-                    //Track the new caret position
-                    ds.newCaretPos = newCaretPos;
-                    //Revert back to the old text when reaching limit
-                    if (revertString.length <= limit) {
-                      $el.val(revertString);
-                      //Force an input event to allow text handling
-                      $el.trigger('propertychange.' + pluginName);
-                    }
-                  } else {
-                    //Only need to update the indicator if using only the counter
-                    //Maxlength was not used
+                    //For updating the indicator if there is one
                     updateIndicator();
+                    setTimeout(function() {
+                      ep.trackSelectionFunction();
+                      if (ds.falsePositive) {
+                        //Only need to reset the caret when exceeded length from pasting
+                        if (typeof ep.dataStore.newCaretPos === 'number') {
+                          var newCaretPos = ep.dataStore.newCaretPos;
+                          ep.setInputSelection(newCaretPos, newCaretPos);
+                          ep.dataStore.newCaretPos = null;
+                        }
+                      }
+                    });
+                  } else if (status === 'greater') {
+                    //In case there is a false positive
+                    //for maxlength support
+                    ds.falsePositive = true;
+                    //Correction for Ie6-8
+                    //to properly detect text selection prior to pasting 
+                    if (ds.selectBeforeKeydown) {
+                      ds.caretStatus = ds.selectCaretStatus;
+                    }
+                    //Only calculate the text to restore when
+                    //plugin is set to use maxlength
+                    if (ds.indicator.useMaxlength) {
+                      var newLength = ep.getTextAreaLength(),
+                        oldCaret = ds.caretStatus,
+                        oldCaretStart = oldCaret.start,
+                        oldCaretEnd = oldCaret.end,
+                        oldLength = ds.lengthText,
+                        charactersLeft = limit - oldLength,
+                        textString = ep.getText();
+                      //For the new phrase
+                      var frontEnd,
+                        backFront,
+                        middleFront,
+                        middleBack;
+                      //Text was selected before
+                      if (ds.isTextSelected || ds.selectBeforeKeydown) {
+                        frontEnd = oldCaret.end;
+                        middleFront = oldCaret.end;
+                        middleBack = charactersLeft + oldCaretEnd;
+                        backFront = newLength - (oldLength - oldCaretEnd);
+                      } else {
+                        //Text was not selected before
+                        frontEnd = oldCaretStart;
+                        middleFront = oldCaretStart;
+                        middleBack = charactersLeft + oldCaretStart;
+                        backFront = newLength - (oldLength - oldCaretStart);
+                      }
+                      //Correct the string when the length is exceeded
+                      var front = textString.slice(0, frontEnd),
+                        middle = textString.slice(middleFront, middleBack),
+                        back = textString.slice(backFront, newLength),
+                        revertString = front + middle + back,
+                        newCaretPos = front.length + middle.length;
+                      //Track the new caret position
+                      ds.newCaretPos = newCaretPos;
+                      //Revert back to the old text when reaching limit
+                      if (revertString.length <= limit) {
+                        $el.val(revertString);
+                        //Force an input event to allow text handling
+                        $el.trigger('propertychange.' + pluginName);
+                      }
+                    } else {
+                      //Only need to update the indicator if using only the counter
+                      //Maxlength was not used
+                      updateIndicator();
+                    }
                   }
-                }
-              });
+                });
               //A test for partialInputSupport for Ie9
               if (ds.partialInputSupport) {
                 //For Ie9 where deleting text does not trigger input
-                $(document).on('selectionchange.' + pluginName, function () {
+                $(document).on('selectionchange.' + pluginName, function() {
                   if (ep.getTextAreaLength() < ds.lengthText) {
                     $el.trigger('propertychange.' + pluginName);
                   }
                 });
               }
             },
-            dropFunction: function () {
+            dropFunction: function() {
               //Alias dataStore
               var ds = ep.dataStore;
-              $el.on('drop.' + pluginName, function () {
+              $el.on('drop.' + pluginName, function() {
                 //Check to prevent triggering for Ie
                 ep.dataStore.dropOccurred = true;
                 //Using a timer as a way to get caret after drop event
-                setTimeout(function () {
+                setTimeout(function() {
                   //Track the dragged in text 
                   //Text could be selected at the time
                   ep.trackSelectionFunction();
@@ -683,13 +718,13 @@
                 });
               });
             },
-            pastePreventFunction: function () {
-              $el.on('paste.' + pluginName, function (evt) {
+            pastePreventFunction: function() {
+              $el.on('paste.' + pluginName, function(evt) {
                 ep.negateEvent(evt);
               });
             },
-            deselectFunction: function (input) {  
-              $el.on('stopVerbosity-deselect', function () {
+            deselectFunction: function(input) {
+              $el.on('stopVerbosity-deselect', function() {
                 var limit = ep.dataStore.limit,
                   status = ep.checkLimit(limit);
                 ep.trackSelectionFunction();
@@ -704,8 +739,8 @@
                 }
               });
             },
-            selectFunction: function (input) {
-              $el.on('select.' + pluginName, function () {
+            selectFunction: function(input) {
+              $el.on('select.' + pluginName, function() {
                 //Prevent triggers on dragging of text into textarea for Opera 12
                 if (ep.dataStore.dropOccurred) {
                   return;
@@ -734,12 +769,12 @@
                 }
               });
             },
-            trackSelectionEventsFunction: function () {
-            var trackSelectionEvts = ['mouseout', 'focus', 'blur', 'keyup'],
-            groupEvts = ep.appendNameSpace(trackSelectionEvts, pluginName);
-              $el.on(groupEvts, function () {
+            trackSelectionEventsFunction: function() {
+              var trackSelectionEvts = ['mouseout', 'focus', 'blur', 'keyup'],
+                groupEvts = ep.appendNameSpace(trackSelectionEvts, pluginName);
+              $el.on(groupEvts, function() {
                 //Track if selection is present
-                setTimeout(function () {
+                setTimeout(function() {
                   ep.trackSelectionFunction();
                 });
               });
@@ -747,35 +782,35 @@
             appendNameSpace: function(theArray, namespace) {
               var arrayLen = theArray.length,
                 i = 0;
-              for(;i < arrayLen; i++) {
+              for (; i < arrayLen; i++) {
                 theArray[i] = theArray[i] + '.' + namespace;
               }
             },
-            mousedownFunction: function () {
-              $el.on('mousedown.' + pluginName, function () {
+            mousedownFunction: function() {
+              $el.on('mousedown.' + pluginName, function() {
                 //Track mousedown event
                 ep.setDataStore('isMouseDown', true);
               });
             },
-            clickFunction: function () {
-              $el.on('click.' + pluginName, function () {
+            clickFunction: function() {
+              $el.on('click.' + pluginName, function() {
                 //Track if selection is present
-                setTimeout(function () {
+                setTimeout(function() {
                   ep.trackSelectionFunction();
                 });
                 //Track mouse up from click
                 ep.setDataStore('isMouseDown', false);
               });
             },
-            keydownFunction: function () {
+            keydownFunction: function() {
               var ds = ep.dataStore;
               //To correct for Ie8 for not triggering on change
               this.keydownFunction.checkFirstKeyDown =
-                function (caller) {
+                function(caller) {
                   //Checks the first keydown
                   if (ds.checkFirstKeyDown) {
                     if (ds.continueKeyCheck) {
-                      setTimeout(function () {
+                      setTimeout(function() {
                         if (ep.getTextAreaLength() > 0) {
                           $el.trigger('propertychange.' + pluginName);
                         }
@@ -784,12 +819,12 @@
                   }
                   //When using backspace to delete
                   if (caller === 'keyprevent') {
-                    setTimeout(function () {
+                    setTimeout(function() {
                       $el.trigger('propertychange.' + pluginName);
                     });
                   }
               };
-              this.keydownFunction.checkTab = function (evt) {
+              this.keydownFunction.checkTab = function(evt) {
                 if (evt.which === 9) {
                   //If the mouse is down while tab was pressed
                   //prevent it from happening
@@ -801,22 +836,29 @@
                 }
               };
               //The keydown prevent function when limit is reached
-              this.keydownFunction.keydownPrevent = function () {
-                $el.on('keydown.' + pluginName, function (evt) {
+              this.keydownFunction.keydownPrevent = function() {
+                $el.on('keydown.' + pluginName, function(evt) {
                   //Preserve some keys after textarea is full: f-keys, arrows, backspace etc.
                   //Code to keys chart http://pastebin.com/z5LH4x9f
-                  if (
-                    /^(0|8|9|16|17|18|19|20|27|33|34|35|36|37|38|38|39|40|45|46|112|113|114|115|116|117|118|119|120|121|122|123)$/
-                    .test(evt.which)) {
-                    ep.keydownFunction.checkTab(evt);
-                    ep.keydownFunction.checkFirstKeyDown('keyprevent');
-                    ds.falsePositive = true;
-                  } else if (evt.ctrlKey === false) {
-                    //On single key presses
-                    //Only permit the single key if ctrl was pressed too
-                    evt.preventDefault();
+                  switch (evt.which) {
+                    case 0: case 8 :case 9: case 16: case 17: case 18: case 19:
+                    case 20: case 27: case 33: case 34: case 35: case 36: 
+                    case 37: case 38: case 39: case 40: case 45: case 46:
+                    case 112: case 113: case 114: case 115: case 116: case 117:
+                    case 118: case 119: case 120: case 121: case 122: case 123:
+                      ep.keydownFunction.checkTab(evt);
+                      ep.keydownFunction.checkFirstKeyDown('keyprevent');
+                      ds.falsePositive = true;
+                      break;
+                    default:
+                      if (evt.ctrlKey === false) {
+                        //On single key presses
+                        //Only permit the single key if ctrl was pressed too
+                        evt.preventDefault();
+                      }
+                      break;
                   }
-                  setTimeout(function () {
+                  setTimeout(function() {
                     ep.trackSelectionFunction();
                     if (ep.dataStore.isTextSelected) {
                       ep.dataStore.selectBeforeKeydown = true;
@@ -830,11 +872,11 @@
               //Multiple keydown listener from being attached
               $el.off('keydown.' + pluginName);
               //Default tracking of keydown listener
-              this.keydownFunction.keydown = function () {
-                $el.on('keydown.' + pluginName, function (evt) {
+              this.keydownFunction.keydown = function() {
+                $el.on('keydown.' + pluginName, function(evt) {
                   ep.keydownFunction.checkTab(evt);
                   ep.keydownFunction.checkFirstKeyDown();
-                  setTimeout(function () {
+                  setTimeout(function() {
                     ep.trackSelectionFunction();
                     //For Ie6-8
                     if (ep.dataStore.isTextSelected) {
@@ -875,13 +917,13 @@
               selectBeforeKeydown: false,
               supportsInput: null
             },
-            removeDataStore: function (key) {
+            removeDataStore: function(key) {
               this.dataStore[key] = null;
             },
-            setDataStore: function (key, value) {
+            setDataStore: function(key, value) {
               this.dataStore[key] = value;
             },
-            copyObjectValue: function (fromObj, toObj, key) {
+            copyObjectValue: function(fromObj, toObj, key) {
               for (var prop in fromObj) {
                 if (fromObj.hasOwnProperty(prop)) {
                   if (key === prop) {
@@ -890,18 +932,18 @@
                 }
               }
             },
-            negateEvent: function (evt) {
+            negateEvent: function(evt) {
               //Prevent and stop propagation of event
               evt.preventDefault();
               evt.stopPropagation();
             },
-            isTextSelected: function (caretStatus) {
+            isTextSelected: function(caretStatus) {
               //A difference indicates a range, which means a selection
               if (Math.abs(caretStatus.start - caretStatus.end) > 0) {
                 return true;
               }
             },
-            setSelectionStatus: function () {
+            setSelectionStatus: function() {
               //Determine if text is actually selected and sets the status
               var ds = this.dataStore;
               ds.caretStatus = ep.getInputSelection();
@@ -911,7 +953,7 @@
                 this.setDataStore('isTextSelected', false);
               }
             },
-            trackSelectionFunction: function () {
+            trackSelectionFunction: function() {
               //Save the previous state text selection
               var prevSelection = ep.dataStore.isTextSelected;
               //Track if selection is present
@@ -923,13 +965,13 @@
                 $el.trigger('stopVerbosity-deselect');
               }
             },
-            getText: function () {
+            getText: function() {
               return $el.val();
             },
-            getTextAreaLength: function () {
+            getTextAreaLength: function() {
               return this.getText().length;
             },
-            checkLimit: function (limit) {
+            checkLimit: function(limit) {
               var charactersLength = this.getTextAreaLength();
               if (charactersLength > limit) {
                 return 'greater';
@@ -939,7 +981,7 @@
                 return 'less';
               }
             },
-            setInputSelection: function (startOffset, endOffset) {
+            setInputSelection: function(startOffset, endOffset) {
               var _this = this.setInputSelection;
               var el = $el[0];
               if (typeof el.selectionStart === 'number' &&
@@ -949,7 +991,8 @@
                 el.selectionEnd = endOffset;
               } else {
                 var range = el.createTextRange();
-                var startCharMove = _this.offsetToRangeCharacterMove(el, startOffset);
+                var startCharMove = _this.offsetToRangeCharacterMove(el,
+                  startOffset);
                 range.collapse(true);
                 if (startOffset === endOffset) {
                   range.move('character', startCharMove);
@@ -961,7 +1004,7 @@
                 range.select();
               }
             },
-            getInputSelection: function () {
+            getInputSelection: function() {
               var start = 0,
                 end = 0,
                 normalizedValue,
@@ -988,12 +1031,12 @@
                   // in those cases
                   endRange = el.createTextRange();
                   endRange.collapse(false);
-                  if (textInputRange.compareEndPoints('StartToEnd', endRange) > -1) {
+                  if (textInputRange.compareEndPoints('StartToEnd', endRange) > - 1) {
                     start = end = len;
                   } else {
                     start = -textInputRange.moveStart('character', -len);
                     start += normalizedValue.slice(0, start).split('\n').length - 1;
-                    if (textInputRange.compareEndPoints('EndToEnd', endRange) > -1) {
+                    if (textInputRange.compareEndPoints('EndToEnd', endRange) > - 1) {
                       end = len;
                     } else {
                       end = -textInputRange.moveEnd('character', -len);
@@ -1015,8 +1058,8 @@
     plugin(element, options);
     plugin.prototype.init();
   };
-  $.fn[pluginName] = function (options) {
-    return this.each(function () {
+  $.fn[pluginName] = function(options) {
+    return this.each(function() {
       if (!$.data(this, "plugin_" + pluginName)) {
         $.data(this, "plugin_" + pluginName, new PluginWrapper(this, options));
       }
