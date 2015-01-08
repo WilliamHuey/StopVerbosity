@@ -17,8 +17,7 @@ $(document).ready(function () {
     indicatorPosition: 'after',
     indicatorId: '',
     indicatorElementType: 'p',
-    indicatorPhrase: ['Used', '[countup]', 'of', '[limit]',
-      'characters.',
+    indicatorPhrase: ['Used', '[countup]', 'of', '[limit]', 'characters.',
       '[countdown]', 'characters remaining.', 'The maximum is', '[limit]',
       'characters.', '<br>', 'Permits multiple counts up:', '[countup]',
       'and counts down:', '[countdown].',
@@ -120,6 +119,9 @@ Since browsers do not have an undo or redo event in textareas, this plugin will 
 
 ChangeLog:
 ------
+v1.14.1
+* Fix: Normalize textarea newline (\n) to crlf (\r\n, two characters)
+
 v1.14.0
 * Add: Preserve text option on plugin initialization
 * Refactor: Thrown errors, Key check

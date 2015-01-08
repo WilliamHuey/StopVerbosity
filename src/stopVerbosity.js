@@ -3,14 +3,15 @@
  *  Description: Limits and counts the characters in a textarea.
  *  Author: William Huey
  *  License: MIT
- *  Version: 1.14.0
+ *  Version: 1.14.1
  *
  *  Credits:
  *  Tim Down (getInputSelection, setInputSelection)
  *    http://stackoverflow.com/questions/3549250/highlighting-a-piece-of-string-in-a-textarea
  *  Ben Alpert(isInputSupported)
  *    http://benalpert.com/2013/06/18/a-near-perfect-oninput-shim-for-ie-8-and-9.html
- *
+ *  matt (getTextAreaLength regex)
+ *    http://stackoverflow.com/questions/10030921/chrome-counts-characters-wrong-in-textarea-with-maxlength-attribute
  */
  
 ;(function($, window, document, undefined) {
@@ -969,7 +970,8 @@
               return $el.val();
             },
             getTextAreaLength: function() {
-              return this.getText().length;
+              //Normalize the end of line character to crlf for all browsers
+              return this.getText().replace(/\r(?!\n)|\n(?!\r)/g, "\r\n").length;
             },
             checkLimit: function(limit) {
               var charactersLength = this.getTextAreaLength();
