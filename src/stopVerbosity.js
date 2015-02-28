@@ -144,11 +144,10 @@
           checkLimitOption: function(limit) {
             //Check the supply word limit
             if (typeof limit !== 'number') {              
-              if (parseFloat(limit) == parseInt(limit, 10) && 
-                !isNaN(limit) && limit > 0) {
+              throw new TypeError('Specified text limit is not a number.');              
+            } else {
+              if (limit <= 0 || (parseFloat(limit) != parseInt(limit, 10))) {
                 throw new RangeError('Text limit is not a valid positive integer.');
-              } else {
-                throw new TypeError('Specified text limit is not a number.');
               }
             }
           },
