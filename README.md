@@ -14,6 +14,7 @@ Default Options:
 $(document).ready(function () {
   $('textarea').stopVerbosity({
     limit: 10,
+    limitFromTextArea: false,
     indicatorPosition: 'after',
     indicatorId: '',
     indicatorElementType: 'p',
@@ -42,6 +43,9 @@ Option Details:
 -------------
 ###limit (integer)
     The number of characters that are allowed in the textarea.
+
+###limitFromTextArea (boolean)    
+    By default false, which only takes the limit from the plugin. If true, then the limit is taken from the textarea's maxlength.
 
 ###indicatorPosition (string)
     Could be 'before' or 'after'. 
@@ -119,6 +123,9 @@ Since browsers do not have an undo or redo event in textareas, this plugin will 
 
 ChangeLog:
 ------
+v1.14.2
+* Add: Ability to use limit from existing textarea element
+
 v1.14.1
 * Fix: Normalize textarea newline (\n) to crlf (\r\n, two characters)
 

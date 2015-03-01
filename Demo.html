@@ -163,7 +163,14 @@
       indicatorPhrase: ['Original words in textarea was "a lot of words".', 'The limit is', '[limit]', 'characters.'],
       limit: 5,
       existingText: 'truncate'
+    }); 
+
+    $('#limit-from-textarea').stopVerbosity({
+      indicatorPhrase: ['Using maxlength from textarea. The limit is', '[limit]', 'characters.'],
+      limit: 20,
+      limitFromTextArea: true,
     });    
+
   });  
   </script>
 </head>
@@ -198,6 +205,8 @@
                 </li>
                 <li> <a href="#r-adjust-limit-value">Character Limit</a> 
                 </li>
+                <li><a href="#r-limit-from-textarea">Limit from Textarea</a>
+                </li>
                 <li> <a href="#r-indicator-before-textarea">Indicator Position</a> 
                 </li>
                 <li> <a href="#r-custom-id-for-indicator">Custom Indicator Id</a> 
@@ -220,7 +229,7 @@
                 </li>
                 <li>
                   <a href="#r-truncation">Text Truncation</a>
-                </li>
+                </li>                 
               </ul>
             </li>
             <li> <a href="#r-notes">Notes</a> 
@@ -266,6 +275,7 @@
                   <div class="large-6 columns">
 <pre><span class="c-859900">$</span>('<span class="c-536871"><span class="c-a57800">textarea</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
   limit: <span class="c-269186">10</span>,
+  limitFromTextArea: <span class="c-b58900">false</span>,
   indicatorPosition: <span class="c-269186"><span class="c-c60000">'</span>after<span class="c-c60000">'</span></span>,
   indicatorId: <span class="c-269186"><span class="c-c60000">'</span><span class="c-c60000">'</span></span>,
   indicatorElementType: <span class="c-269186"><span class="c-c60000">'</span>p<span class="c-c60000">'</span></span>,
@@ -294,41 +304,59 @@
                   <div class="large-6 columns" id="options-explanations">
                   
                     <div class="row">
-                      <h3>limit (integer)</h3>
-                      
+                      <h3>limit (integer)</h3>                      
                       <p>The number of characters that are allowed in the textarea.</p>
+
+                      <h3>limitFromTextArea (boolean)</h3>
+                      <p>
+                      By default false, which only takes the limit from the plugin. If true, then the limit is taken from the textarea's maxlength.
+                      </p>
+
                       <h3>indicatorPosition (string)</h3>
                       <p>Could be 'before' or 'after'. 'before' inserts the indicator before the textarea. 'after' inserts the
                         indicator after the textarea.</p>
+
                       <h3>indicatorId (string)</h3>
                       <p>Optional id if you wish to quickly refer to the indicator for styling.</p>
+
                       <h3>indicatorElementType (string)</h3>
                       <p>Should be either a 'p' or 'span' tag since the indicator is text.</p>
+
                       <h3>indicatorPhrase (array of strings)</h3>
                       <p>Specify your custom text with quotes for an item in the array. '[countup]', '[countdown]', and '[limit]'
                         are the only reserved variable strings. This means these string variable will change on textarea
                         input.</p>
+
                       <h3>indicatorUpdateSpeed (number)</h3>
                       <p>The delay placed on the indicator before update. This is a number that is represented in milliseconds.</p>
+
                       <h3>existingIndicator (object)</h3>
                       <p>Supply an indicator element that is already on the page. Has to be a jQuery object ex. $('#my-textarea-indicator')</p>
+
                       <h3>generateIndicator (boolean)</h3>
                       <p>By default, the indicator will be set to true for auto generation.</p>
+
                       <h3>showIndicator (boolean)</h3>
                       <p>The indicator will be shown, unless this is set to false.</p>
+
                       <h3>useNativeMaxlength (boolean)</h3>
                       <p>Uses the browser's maxlength if supported when set to true. However, setting this to false will use
                         the plugin's implementation of maxlength. Should only set to false for testing purposes.</p>
+
                       <h3>textLengthChange (boolean)</h3>
                       <p>Triggers an event when set to true. Allows for a callback when there is a change in the text length
                         of the textarea. This is useful for doing something that this plugin does not provide.</p>
+
                       <h3>useMaxlength (boolean)</h3>
                       <p>When set to false, maxlength is not implemented on the textarea. If the indicator is still present,
                         the plugin will act as character counter. Set 'useMaxlength' to false to allow for overflow.</p>
+
                       <h3>beforeAttachment (function)</h3>
                       <p>Accepts and runs the function that is provided before the plugin initializes (attaching events).</p>
+
                       <h3>afterAttachment (function)</h3>
                       <p>Similar to beforeAttachment but runs the function after plugin initializes.</p>
+
                       <h3>existingText (string)</h3>
                       <p>Could be 'clear' or 'truncate'. Determines how existing text is treated during initialization.
     The 'clear' option will clear out any existing text during initialization,
@@ -424,6 +452,27 @@
 </pre> 
                   </div>
                 </div>
+
+                <div class="row" id="r-limit-from-textarea">
+                  <div class="large-12 columns">
+                    <h2>Limit from Textarea</h2>
+                  </div>
+                  <div class="large-6 columns">
+                    <textarea maxlength="5" id="limit-from-textarea"></textarea>
+                  </div>
+                  <div class="large-6 columns">
+<pre><span class="c-93a1a1">//The limit from the textarea element overrides the limit supplied by the plugin.</span>
+
+<span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#limit-from-textarea</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
+  <span class="c-a57800">indicatorPhrase</span>: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Using maxlength from textarea. The limit is<span class="c-c60000">'</span></span>,
+    <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>,<span class="c-269186"><span class="c-c60000">'</span>characters.<span class="c-c60000">'</span></span>
+  <span class="c-268bd2">]</span>,
+   <span class="c-a57800">limit</span>:<span class="c-269186"> 20</span>
+<span class="c-268bd2">}</span><span class="c-93a1a1">)</span>;
+</pre>
+                  </div>
+                </div>
+
                 <div class="row" id="r-indicator-before-textarea">
                   <div class="large-12 columns">
                     <h2>Indicator Position</h2>
@@ -647,7 +696,7 @@
 <pre><span class="c-93a1a1">//Existing text in textarea is trucated if text is greater than the limit.</span>
 
 <span class="c-859900">$</span>('<span class="c-536871"><span class="c-268bd2">#text-truncation</span></span>').stopVerbosity<span class="c-93a1a1">(</span><span class="c-268bd2">{</span>
-  <span class="c-a57800">indicatorPhrase</span>: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Orignal words in textarea was "a lot of words".<span class="c-c60000">'</span></span>,
+  <span class="c-a57800">indicatorPhrase</span>: <span class="c-268bd2">[</span><span class="c-269186"><span class="c-c60000">'</span>Original words in textarea was "a lot of words".<span class="c-c60000">'</span></span>,
     <span class="c-269186"><span class="c-c60000">'</span>The limit is<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>[limit]<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>of<span class="c-c60000">'</span></span>, <span class="c-269186"><span class="c-c60000">'</span>characters.<span class="c-c60000">'</span></span>
   <span class="c-268bd2">]</span>,
    <span class="c-a57800">limit</span>:<span class="c-269186"> 10</span>,
@@ -656,7 +705,6 @@
 </pre>
                   </div>
                 </div>
-
 
               </div>
             </div>

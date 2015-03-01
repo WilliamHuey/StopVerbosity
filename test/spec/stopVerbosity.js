@@ -365,5 +365,22 @@ describe("stop verbosity plugin for textarea", function() {
         }, "text was not truncated", 2000);
       });
     });
+
+    describe("for using maxlength from existing textarea", function() {
+
+      var testStr = "other stuff here";
+
+      it("should have precedence over defined limit in plugin", function() {
+        var maxlengthTextarea = 5;
+        $textarea.attr('maxlength', maxlengthTextarea)
+        $textarea.stopVerbosity({          
+          limitFromTextArea: true
+        });
+        asynSimKeys(testStr);
+        waitsFor(function() {
+          return $textarea.val().length == maxlengthTextarea;
+        }, "text was not truncated", 2000);
+      });
+    });
   });
 });

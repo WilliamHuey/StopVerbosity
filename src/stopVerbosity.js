@@ -3,7 +3,7 @@
  *  Description: Limits and counts the characters in a textarea.
  *  Author: William Huey
  *  License: MIT
- *  Version: 1.14.1
+ *  Version: 1.14.2
  *
  *  Credits:
  *  Tim Down (getInputSelection, setInputSelection)
@@ -24,6 +24,7 @@
     //Defaults options
     var defaults = {
       limit: 10,
+      limitFromTextArea: false,
       indicatorPosition: 'after',
       indicatorId: '',
       indicatorElementType: 'p',
@@ -130,8 +131,15 @@
             setupDataStore.showIndicator = showIndicator;
             setupDataStore.afterAttachment = options.afterAttachment;
             setupDataStore.existingText = options.existingText;
+            setupDataStore.limitFromTextArea = options.limitFromTextArea;
+            var textareaLimit = setupProto.checkExistingTextarea($el)
             //Check character limit value in textarea
-            setupProto.checkLimitOption(limit);
+            limit = setupProto.checkLimitOption(limit, 
+              options.limitFromTextArea, textareaLimit);
+            //Set the limit to the limit of the textarea if it differs from the option's limit
+            if(options.limit != limit) {
+              options.limit = limit
+            }
             //Check for clearing of text in textarea
             //Insert the indicator (character counter) near textarea
             setupProto.setIndicator(limit, indicatorElementType,
@@ -141,7 +149,32 @@
             //After initializing, return phrase info
             return setupProto.setupDataStore;
           },
-          checkLimitOption: function(limit) {
+          checkExistingTextarea: function ($el) {
+            //Use textarea maxlength that is already on the page
+            //Check for jQuery object passed in
+            if (Object.prototype.toString.call($el) ===
+              '[object Object]') {
+              try {
+                if ($el instanceof jQuery) {
+                  //Check for max-length limit defined on textarea element
+                  return $el.attr('maxlength')                  
+                }
+              } catch (error) {
+                throw new TypeError('Not a jQuery Object.');
+              }
+            }
+          },
+          checkLimitOption: function(limit, limitFromTextArea, textareaLimit) {
+            //Take the limit from the existing textarea if specified
+            var limit;
+            if(limitFromTextArea) {
+              if(this.setupDataStore.limitFromTextArea && textareaLimit) {
+                var parsedLimit = parseInt(textareaLimit, 10);
+                if(typeof parsedLimit == 'number') {
+                  limit = parsedLimit;
+                }              
+              }
+            }
             //Check the supply word limit
             if (typeof limit !== 'number') {              
               throw new TypeError('Specified text limit is not a number.');              
@@ -150,6 +183,7 @@
                 throw new RangeError('Text limit is not a valid positive integer.');
               }
             }
+            return limit;
           },
           setIndicator: function(limit, indicatorElementType,
             indicatorId, indicatorPosition, indicatorPhrase, $el,
@@ -269,10 +303,7 @@
             //Initial update on the phrase with the strVar
             updatePhrase(['limit', 'countdown', 'countup'],
               limitData, indicatorPhrase, _this);
-            //Also get a copy of the original phrase array
-            this.setupDataStore.indicatorPhrase = indicatorPhrase;
-            //Use an element that is already on the page
-            //Check for jQuery object passed in
+            //Check for indicator presence
             if (Object.prototype.toString.call(existingIndicator) ===
               '[object Object]') {
               try {
@@ -285,6 +316,8 @@
                 throw new TypeError('Not a jQuery Object.');
               }
             }
+            //Also get a copy of the original phrase array
+            this.setupDataStore.indicatorPhrase = indicatorPhrase;            
             //Generate the indicator if no default element is given
             if (generateIndicator) {
               //Check if id is given
